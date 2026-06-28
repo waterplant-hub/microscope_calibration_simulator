@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>顯微測量校正：目鏡測微器 × 載物台測微器 v0.6</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --panel: #122033;
+      --panel-2: #0b1524;
+      --line: #29405f;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --orange: #f59e0b;
+      --orange-soft: #fff7ed;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #facc15;
+      --paper: #edf7ff;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: #08111f; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(37, 99, 235, .2), transparent 28rem),
+        linear-gradient(135deg, #07111f 0%, #101827 48%, #0b1d1e 100%);
+      color: var(--ink);
+    }
+
+    button, input, select { font: inherit; }
+    button { border: 0; color: inherit; }
+    svg { display: block; }
+
+    .app {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: end;
+      padding: 10px 2px 18px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #f8fafc;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      font-weight: 920;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: #cbd5e1;
+      font-size: .96rem;
+    }
+
+    .device-note {
+      margin: 5px 0 0;
+      color: rgba(148, 163, 184, .78);
+      font-size: .76rem;
+      font-weight: 680;
+    }
+
+    .footer-note {
+      padding: 14px 2px 4px;
+      color: rgba(148, 163, 184, .72);
+      font-size: .76rem;
+      text-align: center;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      min-width: 118px;
+      padding: 8px 11px;
+      border: 1px solid rgba(148, 163, 184, .3);
+      background: rgba(15, 23, 42, .78);
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, .18);
+    }
+
+    .badge strong {
+      display: block;
+      color: #e2e8f0;
+      font-size: .76rem;
+      font-weight: 700;
+    }
+
+    .badge span {
+      display: block;
+      margin-top: 2px;
+      color: #67e8f9;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 800;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(460px, 1fr) minmax(315px, 390px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid rgba(148, 163, 184, .24);
+      background: rgba(18, 32, 51, .92);
+      border-radius: 8px;
+      box-shadow: 0 24px 55px rgba(0, 0, 0, .26);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, .2);
+      background: rgba(7, 17, 31, .72);
+    }
+
+    .panel-title {
+      margin: 0;
+      color: #e2e8f0;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .panel-body { padding: 14px; }
+
+    .microscope-wrap {
+      position: relative;
+      height: 360px;
+      border-bottom: 1px solid rgba(148, 163, 184, .18);
+      background:
+        linear-gradient(180deg, rgba(238, 247, 255, .08), transparent 38%),
+        #081321;
+      overflow: hidden;
+    }
+
+    .microscope-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .objective-label {
+      font-size: 11px;
+      font-weight: 900;
+      fill: #0f172a;
+      text-anchor: middle;
+    }
+
+    .control-stack {
+      display: grid;
+      gap: 13px;
+    }
+
+    .control-group {
+      padding: 12px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(11, 21, 36, .78);
+      border-radius: 8px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      color: #e2e8f0;
+      font-size: .88rem;
+      font-weight: 800;
+    }
+
+    .value {
+      color: #67e8f9;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 800;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .segmented button,
+    .plain-btn,
+    .small-btn {
+      min-height: 40px;
+      border-radius: 8px;
+      background: #223349;
+      color: #dbeafe;
+      font-weight: 850;
+      cursor: pointer;
+      transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+    }
+
+    .segmented button:hover,
+    .plain-btn:hover,
+    .small-btn:hover { transform: translateY(-1px); background: #2f4561; }
+
+    .segmented button.active {
+      background: linear-gradient(180deg, #0ea5e9, #2563eb);
+      color: white;
+      box-shadow: 0 0 0 2px rgba(147, 197, 253, .35), 0 12px 20px rgba(37, 99, 235, .3);
+    }
+
+    .plain-btn {
+      width: 100%;
+      background: #0f766e;
+      color: #ecfeff;
+    }
+
+    .small-btn {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: .82rem;
+      background: #334155;
+    }
+
+    .small-btn.warn { background: #7f1d1d; color: #fee2e2; }
+
+    .sample-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .specimen-select {
+      min-height: 34px;
+      max-width: 156px;
+      border: 1px solid rgba(148, 163, 184, .32);
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: .82rem;
+      font-weight: 780;
+      padding: 0 8px;
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #38bdf8;
+    }
+
+    .toggle-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #cbd5e1;
+      font-size: .86rem;
+    }
+
+    .toggle-line input { accent-color: var(--orange); width: 18px; height: 18px; }
+
+    .viewer {
+      display: grid;
+      gap: 14px;
+    }
+
+    .eyepiece-zone {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .eyepiece-frame {
+      position: relative;
+      min-height: 560px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(148, 163, 184, .2);
+      background:
+        radial-gradient(circle at 50% 46%, rgba(255, 255, 255, .1), transparent 18rem),
+        #081321;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .eyepiece-svg {
+      width: min(100%, 660px);
+      aspect-ratio: 1 / 1;
+      max-height: 540px;
+    }
+
+    .crack-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(127, 29, 29, .36);
+      backdrop-filter: blur(1px);
+    }
+
+    .crack-overlay.show { display: flex; }
+
+    .crack-card {
+      width: min(430px, 82%);
+      padding: 18px;
+      border: 2px solid #fecaca;
+      background: rgba(127, 29, 29, .92);
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 24px 40px rgba(0, 0, 0, .42);
+    }
+
+    .crack-card strong {
+      display: block;
+      color: white;
+      font-size: 1.18rem;
+      margin-bottom: 6px;
+    }
+
+    .legend {
+      display: grid;
+      gap: 10px;
+    }
+
+    .legend-item {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      background: rgba(8, 19, 33, .72);
+    }
+
+    .legend-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .swatch.blue { background: var(--blue); }
+    .swatch.orange { background: var(--orange); }
+
+    .legend-item p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: .82rem;
+      line-height: 1.55;
+    }
+
+    .readout-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 14px 14px;
+    }
+
+    .readout {
+      min-height: 74px;
+      padding: 11px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: 8px;
+      background: rgba(11, 21, 36, .8);
+    }
+
+    .readout span {
+      display: block;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+    }
+
+    .readout strong {
+      display: block;
+      margin-top: 4px;
+      color: #f8fafc;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 1.18rem;
+    }
+
+    .status {
+      margin: 0 14px 14px;
+      padding: 12px 13px;
+      min-height: 48px;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, .24);
+      background: rgba(15, 23, 42, .84);
+      color: #dbeafe;
+      font-weight: 760;
+      line-height: 1.45;
+    }
+
+    .status.good {
+      border-color: rgba(16, 185, 129, .55);
+      background: rgba(6, 78, 59, .55);
+      color: #d1fae5;
+    }
+
+    .status.warn {
+      border-color: rgba(250, 204, 21, .6);
+      background: rgba(113, 63, 18, .5);
+      color: #fef3c7;
+    }
+
+    .status.danger {
+      border-color: rgba(239, 68, 68, .72);
+      background: rgba(127, 29, 29, .58);
+      color: #fee2e2;
+    }
+
+    .worksheet {
+      display: grid;
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+      background: rgba(8, 19, 33, .74);
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, .18);
+      text-align: center;
+      font-size: .85rem;
+    }
+
+    th {
+      color: #bfdbfe;
+      background: rgba(37, 99, 235, .18);
+      font-weight: 900;
+    }
+
+    td {
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 760;
+    }
+
+    tr.active-row td {
+      background: rgba(37, 99, 235, .2);
+    }
+
+    .done-dot {
+      display: inline-grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border-radius: 999px;
+      background: #334155;
+      color: #cbd5e1;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: .75rem;
+      font-weight: 900;
+    }
+
+    .done-dot.done {
+      background: #059669;
+      color: white;
+    }
+
+    .formula {
+      padding: 13px;
+      border: 1px solid rgba(245, 158, 11, .42);
+      background: rgba(69, 26, 3, .44);
+      border-radius: 8px;
+    }
+
+    .formula h3 {
+      margin: 0 0 8px;
+      color: #fed7aa;
+      font-size: .95rem;
+    }
+
+    .formula-line {
+      color: #fef3c7;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 900;
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .ocular-mark {
+      color: #60a5fa;
+      font-weight: 950;
+    }
+
+    .stage-mark {
+      color: #f59e0b;
+      font-weight: 950;
+    }
+
+    .measure-mark {
+      color: #67e8f9;
+      font-weight: 950;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .task {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 9px;
+      padding: 10px;
+      border: 1px solid rgba(148, 163, 184, .2);
+      border-radius: 8px;
+      background: rgba(8, 19, 33, .7);
+    }
+
+    .task b {
+      display: block;
+      color: #e2e8f0;
+      font-size: .86rem;
+      margin-bottom: 2px;
+    }
+
+    .task span {
+      color: #94a3b8;
+      font-size: .78rem;
+      line-height: 1.45;
+    }
+
+    .task.done {
+      border-color: rgba(16, 185, 129, .42);
+      background: rgba(6, 78, 59, .35);
+    }
+
+    .task.done span { color: #a7f3d0; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1180px) {
+      .grid { grid-template-columns: 1fr; }
+      .eyepiece-zone { grid-template-columns: 1fr; }
+      .legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .app { padding: 12px; }
+      header { grid-template-columns: 1fr; }
+      .badge-row { justify-content: flex-start; }
+      .readout-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .eyepiece-frame { min-height: 390px; }
+      .legend { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>顯微測量校正</h1>
+        <p class="subtitle">目鏡尺固定為 100 格；載物台測微器是已知標準尺，倍率改變時視野中看到的比例會改變。</p>
+        <p class="device-note">建議平板橫向或電腦操作</p>
+      </div>
+      <div class="badge-row" aria-label="目前倍率資訊">
+        <div class="badge"><strong>目鏡</strong><span>10X</span></div>
+        <div class="badge"><strong>物鏡</strong><span id="objectiveBadge">4X</span></div>
+        <div class="badge"><strong>總倍率</strong><span id="totalBadge">40X</span></div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel" aria-label="顯微鏡操作">
+        <div class="panel-head">
+          <h2 class="panel-title">顯微鏡操作</h2>
+          <button class="small-btn warn" id="resetBtn" type="button">重置</button>
+        </div>
+        <div class="microscope-wrap">
+          <svg class="microscope-svg" viewBox="0 0 400 360" role="img" aria-label="顯微鏡示意圖">
+            <defs>
+              <linearGradient id="metal" x1="0%" x2="100%">
+                <stop offset="0%" stop-color="#9ca3af"/>
+                <stop offset="45%" stop-color="#f8fafc"/>
+                <stop offset="100%" stop-color="#64748b"/>
+              </linearGradient>
+              <linearGradient id="darkMetal" x1="0%" x2="100%">
+                <stop offset="0%" stop-color="#475569"/>
+                <stop offset="48%" stop-color="#d1d5db"/>
+                <stop offset="100%" stop-color="#334155"/>
+              </linearGradient>
+              <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000" flood-opacity=".32"/>
+              </filter>
+            </defs>
+            <g aria-label="目鏡測微器正面示意">
+              <circle cx="67" cy="84" r="42" fill="rgba(248, 250, 252, .9)" stroke="#60a5fa" stroke-width="2"/>
+              <circle cx="67" cy="84" r="37" fill="none" stroke="rgba(96, 165, 250, .25)" stroke-width="1"/>
+              <g id="ocularInsetScale" stroke="#2563eb" stroke-linecap="round" opacity=".72">
+                <line x1="34" y1="88" x2="100" y2="88" stroke-width=".65"/>
+                <line x1="34" y1="81" x2="34" y2="95" stroke-width=".6"/>
+                <line x1="36.2" y1="83" x2="36.2" y2="93" stroke-width=".42"/>
+                <line x1="38.4" y1="83" x2="38.4" y2="93" stroke-width=".42"/>
+                <line x1="40.6" y1="83" x2="40.6" y2="93" stroke-width=".42"/>
+                <line x1="42.8" y1="83" x2="42.8" y2="93" stroke-width=".42"/>
+                <line x1="45" y1="81" x2="45" y2="95" stroke-width=".55"/>
+                <line x1="47.2" y1="83" x2="47.2" y2="93" stroke-width=".42"/>
+                <line x1="49.4" y1="83" x2="49.4" y2="93" stroke-width=".42"/>
+                <line x1="51.6" y1="83" x2="51.6" y2="93" stroke-width=".42"/>
+                <line x1="53.8" y1="83" x2="53.8" y2="93" stroke-width=".42"/>
+                <line x1="56" y1="81" x2="56" y2="95" stroke-width=".55"/>
+                <line x1="58.2" y1="83" x2="58.2" y2="93" stroke-width=".42"/>
+                <line x1="60.4" y1="83" x2="60.4" y2="93" stroke-width=".42"/>
+                <line x1="62.6" y1="83" x2="62.6" y2="93" stroke-width=".42"/>
+                <line x1="64.8" y1="83" x2="64.8" y2="93" stroke-width=".42"/>
+                <line x1="67" y1="81" x2="67" y2="95" stroke-width=".6"/>
+                <line x1="69.2" y1="83" x2="69.2" y2="93" stroke-width=".42"/>
+                <line x1="71.4" y1="83" x2="71.4" y2="93" stroke-width=".42"/>
+                <line x1="73.6" y1="83" x2="73.6" y2="93" stroke-width=".42"/>
+                <line x1="75.8" y1="83" x2="75.8" y2="93" stroke-width=".42"/>
+                <line x1="78" y1="81" x2="78" y2="95" stroke-width=".55"/>
+                <line x1="80.2" y1="83" x2="80.2" y2="93" stroke-width=".42"/>
+                <line x1="82.4" y1="83" x2="82.4" y2="93" stroke-width=".42"/>
+                <line x1="84.6" y1="83" x2="84.6" y2="93" stroke-width=".42"/>
+                <line x1="86.8" y1="83" x2="86.8" y2="93" stroke-width=".42"/>
+                <line x1="89" y1="81" x2="89" y2="95" stroke-width=".55"/>
+                <line x1="91.2" y1="83" x2="91.2" y2="93" stroke-width=".42"/>
+                <line x1="93.4" y1="83" x2="93.4" y2="93" stroke-width=".42"/>
+                <line x1="95.6" y1="83" x2="95.6" y2="93" stroke-width=".42"/>
+                <line x1="97.8" y1="83" x2="97.8" y2="93" stroke-width=".42"/>
+                <line x1="100" y1="81" x2="100" y2="95" stroke-width=".6"/>
+              </g>
+            </g>
+            <g aria-label="載物台測微器正面示意">
+              <rect x="14" y="224" width="100" height="32" rx="4" fill="rgba(236, 253, 245, .8)" stroke="#f59e0b" stroke-width="2"/>
+              <circle cx="64" cy="237" r="8" fill="rgba(255, 247, 237, .64)" stroke="rgba(245, 158, 11, .78)" stroke-width="1.1"/>
+              <line x1="59.5" y1="237" x2="68.5" y2="237" stroke="#f59e0b" stroke-width="1" stroke-linecap="round"/>
+              <text x="64" y="254" fill="#d97706" font-size="8.5" font-weight="850" text-anchor="middle">1 DIV = 0.01mm</text>
+            </g>
+            <g filter="url(#softShadow)" transform="translate(38 0)">
+              <path d="M86 333 H275 C295 333 310 342 318 354 H48 C55 342 68 333 86 333 Z" fill="url(#metal)" stroke="#0f172a" stroke-width="2"/>
+              <path d="M229 329 C224 281 235 244 257 214 C281 181 282 139 256 109 C237 88 214 80 189 83 L192 61 C231 56 266 70 291 101 C326 145 320 203 285 246 C265 271 260 299 263 329 Z" fill="url(#darkMetal)" stroke="#0f172a" stroke-width="2.2"/>
+              <rect x="145" y="33" width="43" height="106" rx="10" fill="url(#metal)" stroke="#0f172a" stroke-width="2"/>
+              <ellipse cx="166.5" cy="32" rx="25" ry="9" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+              <ellipse cx="166.5" cy="31" rx="12" ry="4.5" fill="#22d3ee"/>
+              <text x="166" y="55" class="objective-label">10X</text>
+              <g id="nosepiece">
+                <path d="M118 143 Q166 124 214 143 L204 164 Q166 187 128 164 Z" fill="#dbeafe" stroke="#0f172a" stroke-width="2"/>
+                <circle cx="166" cy="153" r="19" fill="#cbd5e1" stroke="#0f172a" stroke-width="2"/>
+                <circle cx="166" cy="153" r="5" fill="#0f172a"/>
+                <g id="objectiveLayer">
+                  <g id="objective4" class="objective-lens-unit">
+                    <path d="M-13 0 L13 0 L11 31 Q0 38 -11 31 Z" fill="url(#metal)" stroke="#0f172a" stroke-width="2"/>
+                    <line x1="-11" y1="24" x2="11" y2="24" stroke="#ef4444" stroke-width="4"/>
+                    <ellipse cx="0" cy="34" rx="9" ry="4" fill="#f8fafc" stroke="#0f172a" stroke-width="1.4"/>
+                    <text x="0" y="18" class="objective-label">4</text>
+                  </g>
+                  <g id="objective10" class="objective-lens-unit">
+                    <path d="M-12 0 L12 0 L10 45 Q0 52 -10 45 Z" fill="url(#metal)" stroke="#0f172a" stroke-width="2"/>
+                    <line x1="-10" y1="36" x2="10" y2="36" stroke="#facc15" stroke-width="4"/>
+                    <ellipse cx="0" cy="48" rx="9.5" ry="4.2" fill="#f8fafc" stroke="#0f172a" stroke-width="1.4"/>
+                    <text x="0" y="25" class="objective-label">10</text>
+                  </g>
+                  <g id="objective40" class="objective-lens-unit">
+                    <path d="M-12 0 L12 0 L10 61 Q0 68 -10 61 Z" fill="url(#metal)" stroke="#0f172a" stroke-width="2"/>
+                    <line x1="-10" y1="50" x2="10" y2="50" stroke="#60a5fa" stroke-width="4"/>
+                    <ellipse cx="0" cy="64" rx="9" ry="4" fill="#f8fafc" stroke="#0f172a" stroke-width="1.4"/>
+                    <text x="0" y="32" class="objective-label">40</text>
+                  </g>
+                </g>
+              </g>
+              <g id="stageGroup">
+                <rect x="73" y="265" width="188" height="16" rx="3" fill="#cbd5e1" stroke="#0f172a" stroke-width="2"/>
+                <rect x="93" y="255" width="148" height="9" rx="2" fill="#67e8f9" stroke="#f59e0b" stroke-width="2"/>
+                <g id="crackSvg" class="hidden" stroke="#7f1d1d" stroke-width="2.4" fill="none">
+                  <path d="M150 255 L164 258 L157 264 L177 267"/>
+                  <path d="M186 255 L179 259 L193 263 L187 267"/>
+                </g>
+              </g>
+              <line id="dangerLine" x1="166" y1="199" x2="166" y2="255" stroke="#10b981" stroke-width="5" stroke-linecap="round"/>
+              <circle id="coarseKnobSvg" cx="286" cy="181" r="24" fill="#d1d5db" stroke="#0f172a" stroke-width="2"/>
+              <circle cx="286" cy="181" r="8" fill="#0f172a"/>
+              <circle id="fineKnobSvg" cx="298" cy="224" r="13" fill="#d1d5db" stroke="#0f172a" stroke-width="2"/>
+              <circle cx="298" cy="224" r="5" fill="#0f172a"/>
+            </g>
+          </svg>
+        </div>
+        <div class="panel-body control-stack">
+          <div class="control-group">
+            <div class="control-label">物鏡倍率 <span class="value" id="objectiveValue">4X</span></div>
+            <div class="segmented" role="group" aria-label="物鏡倍率">
+              <button id="lens4" class="active" type="button">4X<br>低倍</button>
+              <button id="lens10" type="button">10X<br>中倍</button>
+              <button id="lens40" type="button">40X<br>高倍</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="angleSlider">目鏡測微器旋轉</label>
+              <span class="value"><span id="angleValue">-7.0</span>°</span>
+            </div>
+            <input id="angleSlider" type="range" min="-180" max="180" step="0.5" value="-7">
+            <button class="small-btn" id="angleZeroBtn" type="button">轉正到 0°</button>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="coarseSlider">粗調節輪</label>
+              <span class="value" id="coarseValue">0</span>
+            </div>
+            <input id="coarseSlider" type="range" min="0" max="100" step="1" value="0">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="fineSlider">細調節輪</label>
+              <span class="value" id="fineValue">0</span>
+            </div>
+            <input id="fineSlider" type="range" min="0" max="100" step="1" value="0">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <label for="slideSlider">玻片位置</label>
+              <span class="value"><span id="slideValue">70</span></span>
+            </div>
+            <input id="slideSlider" type="range" min="-700" max="120" step="1" value="70">
+            <button class="small-btn" id="slideAlignBtn" type="button">第一格對齊</button>
+          </div>
+
+          <div class="control-group">
+            <label class="toggle-line">
+              <span>載物台測微器放在載物台上</span>
+              <input id="stageMicrometerToggle" type="checkbox" checked>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel viewer" aria-label="目鏡視野">
+        <div class="panel-head">
+          <h2 class="panel-title">目鏡觀察視野</h2>
+          <button class="small-btn" id="recordBtn" type="button">記錄本倍率</button>
+        </div>
+        <div class="eyepiece-zone">
+          <div class="eyepiece-frame">
+            <svg id="eyepieceSvg" class="eyepiece-svg" viewBox="0 0 560 560" role="img" aria-label="目鏡測微器與載物台測微器疊合視野">
+              <defs>
+                <clipPath id="circleClip"><circle cx="280" cy="280" r="244"/></clipPath>
+                <radialGradient id="fieldGradient" cx="48%" cy="42%" r="58%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="68%" stop-color="#e9f7ff"/>
+                  <stop offset="100%" stop-color="#c7dff1"/>
+                </radialGradient>
+                <filter id="paperNoise">
+                  <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/>
+                  <feColorMatrix type="saturate" values="0"/>
+                  <feComponentTransfer>
+                    <feFuncA type="table" tableValues="0 .05"/>
+                  </feComponentTransfer>
+                </filter>
+              </defs>
+              <circle cx="280" cy="280" r="248" fill="#0f172a"/>
+              <circle cx="280" cy="280" r="244" fill="url(#fieldGradient)" stroke="#0f172a" stroke-width="4"/>
+              <g clip-path="url(#circleClip)">
+                <rect x="0" y="0" width="560" height="560" filter="url(#paperNoise)" opacity=".42"/>
+                <g id="stageScaleLayer"></g>
+                <g id="ocularScaleLayer"></g>
+                <g id="specimenLayer" class="hidden">
+                  <path d="M178 314 C219 260 313 254 380 302" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round" opacity=".76"/>
+                  <path d="M178 314 C219 260 313 254 380 302" fill="none" stroke="#064e3b" stroke-width="2" stroke-linecap="round" opacity=".72"/>
+                </g>
+              </g>
+              <circle cx="280" cy="280" r="244" fill="none" stroke="#111827" stroke-width="5"/>
+            </svg>
+            <div class="crack-overlay" id="crackOverlay">
+              <div class="crack-card">
+                <strong>玻片已破裂</strong>
+                <div>高倍下持續使用粗調節輪，物鏡撞擊載物台測微器。</div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="legend" aria-label="圖例">
+            <div class="legend-item">
+              <div class="legend-title"><span class="swatch blue"></span>目鏡測微器</div>
+              <p>刻度固定在目鏡裡，清晰度不受粗調、細調影響；校正後才能測量標本。</p>
+            </div>
+            <div class="legend-item">
+              <div class="legend-title"><span class="swatch orange"></span>載物台測微器</div>
+              <p>放在載物台上的標準玻片，每格代表 10 μm，用來定標。</p>
+            </div>
+            <div class="legend-item">
+              <div class="legend-title">目前對齊組</div>
+              <p id="targetPairText"><span class="ocular-mark">40 格 a</span> 對上 <span class="stage-mark">100 格 b</span>，<span class="measure-mark">x = 25 μm</span>。</p>
+            </div>
+            <div class="legend-item">
+              <div class="legend-title">讀取條件</div>
+              <p id="alignmentHint">先把藍色目鏡測微器旋轉到與橘色載物台測微器平行。</p>
+            </div>
+          </aside>
+        </div>
+
+        <div class="readout-strip">
+          <div class="readout"><span>目鏡測微器</span><strong class="ocular-mark"><span id="aReadout">40</span> a</strong></div>
+          <div class="readout"><span>載物台測微器</span><strong class="stage-mark"><span id="bReadout">100</span> b</strong></div>
+          <div class="readout"><span>每格長度</span><strong class="measure-mark"><span id="xReadout">25</span> μm</strong></div>
+          <div class="readout"><span>安全狀態</span><strong id="safetyReadout">安全</strong></div>
+        </div>
+        <div id="statusBox" class="status">藍色刻度目前有角度偏移，先旋轉到 0°，再讀取 a 與 b 的對齊格數。</div>
+      </section>
+
+      <section class="panel worksheet" aria-label="校正紀錄">
+        <div class="panel-head">
+          <h2 class="panel-title">校正紀錄</h2>
+          <div class="sample-tools">
+            <select id="specimenSelect" class="specimen-select" aria-label="待測標本">
+              <option value="paramecium">草履蟲</option>
+              <option value="epidermis">植物表皮細胞</option>
+              <option value="wbc">白血球</option>
+            </select>
+            <button class="small-btn" id="sampleBtn" type="button">量未知標本</button>
+          </div>
+        </div>
+        <div class="panel-body worksheet">
+          <table>
+            <thead>
+              <tr>
+                <th>倍率</th>
+                <th>a</th>
+                <th>b</th>
+                <th>x</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="row4">
+                <td>40X</td>
+                <td>40</td>
+                <td>100</td>
+                <td>25 μm</td>
+                <td><span id="done4" class="done-dot">-</span></td>
+              </tr>
+              <tr id="row10">
+                <td>100X</td>
+                <td>100</td>
+                <td>100</td>
+                <td>10 μm</td>
+                <td><span id="done10" class="done-dot">-</span></td>
+              </tr>
+              <tr id="row40">
+                <td>400X</td>
+                <td>100</td>
+                <td>25</td>
+                <td>2.5 μm</td>
+                <td><span id="done40" class="done-dot">-</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="formula">
+            <h3>講義公式</h3>
+            <div class="formula-line"><span class="measure-mark">x</span> = 10<span class="stage-mark">b</span> / <span class="ocular-mark">a</span></div>
+            <div class="formula-line" id="formulaLine"><span class="measure-mark">x</span> = 10 × <span class="stage-mark">100</span> / <span class="ocular-mark">40</span> = <span class="measure-mark">25 μm</span></div>
+          </div>
+
+          <div class="task-list">
+            <div class="task" id="taskRotate">
+              <div class="done-dot" id="dotRotate">-</div>
+              <div><b>轉正目鏡測微器</b><span>藍色刻度與橘色刻度平行，才容易讀出重合格數。</span></div>
+            </div>
+            <div class="task" id="taskRecord">
+              <div class="done-dot" id="dotRecord">-</div>
+              <div><b>完成三倍率校正</b><span>40X、100X、400X 的 x 都必須分開記錄。</span></div>
+            </div>
+            <div class="task" id="taskSafety">
+              <div class="done-dot" id="dotSafety">-</div>
+              <div><b>高倍安全操作</b><span>400X 時只能用細調節輪微調，避免撞擊載物台測微器。</span></div>
+            </div>
+            <div class="task hidden" id="taskSample">
+              <div class="done-dot" id="dotSample">-</div>
+              <div><b>量未知標本</b><span id="sampleResult">先完成校正，再用目鏡測微器換算標本長度。</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer-note">© 2026 林顯豪規劃設計｜顯微測量模擬器｜v0.6 課堂測試版</footer>
+  </div>
+
+  <script>
+    const calibrations = {
+      "4": { objective: 4, total: 40, a: 40, b: 100, x: 25, focus: 22, fine: 52, color: "#f87171" },
+      "10": { objective: 10, total: 100, a: 100, b: 100, x: 10, focus: 22, fine: 60, color: "#facc15" },
+      "40": { objective: 40, total: 400, a: 100, b: 25, x: 2.5, focus: 22, fine: 72, color: "#60a5fa" }
+    };
+    const STAGE_RISE_PER_COARSE = 0.34;
+    const SLIDE_TOP_Y = 255;
+    const OBJECTIVE_BOTTOM_Y = { "4": 199, "10": 213, "40": 229 };
+    const specimens = {
+      paramecium: { label: "草履蟲", length: 150, kind: "paramecium" },
+      epidermis: { label: "植物表皮細胞", length: 40, kind: "epidermis" },
+      wbc: { label: "白血球", length: 20, kind: "wbc" }
+    };
+
+    const state = {
+      lens: "4",
+      angle: -7,
+      coarse: 0,
+      fine: 0,
+      slideX: 70,
+      stageMicrometer: true,
+      broken: false,
+      sampleMode: false,
+      sampleSpecimen: "paramecium",
+      recorded: { "4": false, "10": false, "40": false },
+      safetyPracticed: false
+    };
+
+    const dom = {
+      lens4: document.getElementById("lens4"),
+      lens10: document.getElementById("lens10"),
+      lens40: document.getElementById("lens40"),
+      objectiveBadge: document.getElementById("objectiveBadge"),
+      totalBadge: document.getElementById("totalBadge"),
+      objectiveValue: document.getElementById("objectiveValue"),
+      objectiveLayer: document.getElementById("objectiveLayer"),
+      objective4: document.getElementById("objective4"),
+      objective10: document.getElementById("objective10"),
+      objective40: document.getElementById("objective40"),
+      stageGroup: document.getElementById("stageGroup"),
+      dangerLine: document.getElementById("dangerLine"),
+      coarseKnobSvg: document.getElementById("coarseKnobSvg"),
+      fineKnobSvg: document.getElementById("fineKnobSvg"),
+      angleSlider: document.getElementById("angleSlider"),
+      angleValue: document.getElementById("angleValue"),
+      angleZeroBtn: document.getElementById("angleZeroBtn"),
+      coarseSlider: document.getElementById("coarseSlider"),
+      coarseValue: document.getElementById("coarseValue"),
+      fineSlider: document.getElementById("fineSlider"),
+      fineValue: document.getElementById("fineValue"),
+      slideSlider: document.getElementById("slideSlider"),
+      slideValue: document.getElementById("slideValue"),
+      slideAlignBtn: document.getElementById("slideAlignBtn"),
+      stageMicrometerToggle: document.getElementById("stageMicrometerToggle"),
+      ocularInsetScale: document.getElementById("ocularInsetScale"),
+      stageScaleLayer: document.getElementById("stageScaleLayer"),
+      ocularScaleLayer: document.getElementById("ocularScaleLayer"),
+      specimenLayer: document.getElementById("specimenLayer"),
+      targetPairText: document.getElementById("targetPairText"),
+      alignmentHint: document.getElementById("alignmentHint"),
+      aReadout: document.getElementById("aReadout"),
+      bReadout: document.getElementById("bReadout"),
+      xReadout: document.getElementById("xReadout"),
+      safetyReadout: document.getElementById("safetyReadout"),
+      formulaLine: document.getElementById("formulaLine"),
+      statusBox: document.getElementById("statusBox"),
+      recordBtn: document.getElementById("recordBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      sampleBtn: document.getElementById("sampleBtn"),
+      specimenSelect: document.getElementById("specimenSelect"),
+      crackOverlay: document.getElementById("crackOverlay"),
+      crackSvg: document.getElementById("crackSvg"),
+      row4: document.getElementById("row4"),
+      row10: document.getElementById("row10"),
+      row40: document.getElementById("row40"),
+      done4: document.getElementById("done4"),
+      done10: document.getElementById("done10"),
+      done40: document.getElementById("done40"),
+      taskRotate: document.getElementById("taskRotate"),
+      taskRecord: document.getElementById("taskRecord"),
+      taskSafety: document.getElementById("taskSafety"),
+      taskSample: document.getElementById("taskSample"),
+      dotRotate: document.getElementById("dotRotate"),
+      dotRecord: document.getElementById("dotRecord"),
+      dotSafety: document.getElementById("dotSafety"),
+      dotSample: document.getElementById("dotSample"),
+      sampleResult: document.getElementById("sampleResult")
+    };
+
+    function el(name, attrs = {}) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+      return node;
+    }
+
+    function labelText(text, x, y, fill, size = 18, weight = 900, anchor = "middle") {
+      const node = el("text", { x, y, fill, "font-size": size, "font-weight": weight, "text-anchor": anchor });
+      node.textContent = text;
+      return node;
+    }
+
+    function focusViewState() {
+      const c = calibrations[state.lens];
+      const coarseError = Math.abs(state.coarse - c.focus);
+      const fineError = Math.abs(state.fine - c.fine);
+      if (coarseError > 10) return { level: "blank", opacity: 0, blur: 0 };
+      if (coarseError > 2 || fineError > 5) {
+        return { level: "blur", opacity: 0.58, blur: Math.min(8, 3 + coarseError * 0.35 + fineError * 0.04) };
+      }
+      return { level: "clear", opacity: 1, blur: 0 };
+    }
+
+    function applyFocusView() {
+      const focus = focusViewState();
+      const targets = [dom.stageScaleLayer, dom.specimenLayer];
+      targets.forEach(node => {
+        node.style.opacity = String(focus.opacity);
+        node.style.filter = focus.blur ? `blur(${focus.blur}px)` : "none";
+      });
+      dom.ocularScaleLayer.style.opacity = "1";
+      dom.ocularScaleLayer.style.filter = "none";
+    }
+
+    function currentSpecimen() {
+      return specimens[state.sampleSpecimen] || specimens.paramecium;
+    }
+
+    function drawParamecium(g, bodyLength) {
+      const rx = Math.max(2.2, bodyLength / 2);
+      const ry = Math.max(2.6, Math.min(24, bodyLength * 0.18));
+      g.appendChild(el("ellipse", {
+        cx: 0,
+        cy: 0,
+        rx: rx.toFixed(1),
+        ry: ry.toFixed(1),
+        fill: "rgba(42, 157, 107, .34)",
+        stroke: "#065f46",
+        "stroke-width": "1.4"
+      }));
+      g.appendChild(el("ellipse", {
+        cx: (-rx * 0.18).toFixed(1),
+        cy: "0",
+        rx: Math.max(1.8, rx * 0.16).toFixed(1),
+        ry: Math.max(1.2, ry * 0.42).toFixed(1),
+        fill: "rgba(236, 253, 245, .5)",
+        stroke: "rgba(6, 95, 70, .42)",
+        "stroke-width": ".8"
+      }));
+
+      const ciliaCount = Math.max(8, Math.min(30, Math.round(bodyLength / 5)));
+      for (let i = 0; i < ciliaCount; i += 1) {
+        const t = (i / (ciliaCount - 1)) * Math.PI * 2;
+        const x = Math.cos(t) * rx;
+        const y = Math.sin(t) * ry;
+        const x2 = Math.cos(t) * (rx + 4);
+        const y2 = Math.sin(t) * (ry + 4);
+        g.appendChild(el("line", {
+          x1: x.toFixed(1),
+          y1: y.toFixed(1),
+          x2: x2.toFixed(1),
+          y2: y2.toFixed(1),
+          stroke: "rgba(6, 95, 70, .34)",
+          "stroke-width": ".8"
+        }));
+      }
+    }
+
+    function drawEpidermalCell(g, bodyLength) {
+      const width = Math.max(2.8, bodyLength);
+      const height = Math.max(2.2, bodyLength * 0.42);
+      const x = -width / 2;
+      const y = -height / 2;
+      g.appendChild(el("rect", {
+        x: x.toFixed(1),
+        y: y.toFixed(1),
+        width: width.toFixed(1),
+        height: height.toFixed(1),
+        rx: Math.max(0.8, Math.min(4, height * 0.18)).toFixed(1),
+        fill: "rgba(187, 247, 208, .34)",
+        stroke: "#166534",
+        "stroke-width": "1.3"
+      }));
+      [-0.22, 0.24].forEach(pos => {
+        const wallX = pos * width;
+        g.appendChild(el("line", {
+          x1: wallX.toFixed(1),
+          y1: y.toFixed(1),
+          x2: (wallX + width * 0.06).toFixed(1),
+          y2: (y + height).toFixed(1),
+          stroke: "rgba(22, 101, 52, .62)",
+          "stroke-width": ".9"
+        }));
+      });
+      g.appendChild(el("ellipse", {
+        cx: (-width * 0.17).toFixed(1),
+        cy: (height * 0.04).toFixed(1),
+        rx: Math.max(0.8, width * 0.08).toFixed(1),
+        ry: Math.max(0.6, height * 0.16).toFixed(1),
+        fill: "rgba(21, 128, 61, .34)",
+        stroke: "rgba(22, 101, 52, .42)",
+        "stroke-width": ".7"
+      }));
+    }
+
+    function drawWhiteBloodCell(g, bodyLength) {
+      const r = Math.max(1.6, bodyLength / 2);
+      const points = [];
+      for (let i = 0; i < 16; i += 1) {
+        const t = (i / 16) * Math.PI * 2;
+        const pulse = 0.9 + (i % 3) * 0.045 + Math.sin(i * 1.7) * 0.035;
+        points.push(`${(Math.cos(t) * r * pulse).toFixed(1)},${(Math.sin(t) * r * pulse).toFixed(1)}`);
+      }
+      g.appendChild(el("polygon", {
+        points: points.join(" "),
+        fill: "rgba(248, 250, 252, .62)",
+        stroke: "#64748b",
+        "stroke-width": "1.1"
+      }));
+      g.appendChild(el("ellipse", {
+        cx: (-r * 0.1).toFixed(1),
+        cy: (r * 0.05).toFixed(1),
+        rx: Math.max(0.8, r * 0.42).toFixed(1),
+        ry: Math.max(0.7, r * 0.28).toFixed(1),
+        fill: "rgba(126, 34, 206, .58)",
+        stroke: "rgba(88, 28, 135, .72)",
+        "stroke-width": ".8",
+        transform: "rotate(-18)"
+      }));
+    }
+
+    function drawSpecimen(c, ocularX0, ocularY, ocularStep) {
+      dom.specimenLayer.innerHTML = "";
+      if (!state.sampleMode) return;
+
+      const specimen = currentSpecimen();
+      const divisions = specimen.length / c.x;
+      const bodyLength = divisions * ocularStep;
+      const left = ocularX0 + state.slideX;
+      const cx = left + bodyLength / 2;
+      const cy = ocularY + 64;
+      const g = el("g", { transform: `translate(${cx.toFixed(1)} ${cy}) rotate(-6)` });
+
+      if (specimen.kind === "epidermis") drawEpidermalCell(g, bodyLength);
+      else if (specimen.kind === "wbc") drawWhiteBloodCell(g, bodyLength);
+      else drawParamecium(g, bodyLength);
+
+      dom.specimenLayer.appendChild(g);
+    }
+
+    function drawScale() {
+      const c = calibrations[state.lens];
+      const ocularX0 = 80;
+      const stageX0 = ocularX0 + state.slideX;
+      const span = 400;
+      const x1 = ocularX0 + span;
+      const ocularY = 280;
+      const stageY = 324;
+      const ocularStep = span / 100;
+      const stageStep = ocularStep * (10 / c.x);
+      const angle = Number(state.angle);
+
+      dom.stageScaleLayer.innerHTML = "";
+      dom.ocularScaleLayer.innerHTML = "";
+
+      if (state.stageMicrometer) {
+        const stage = el("g", { opacity: state.sampleMode ? ".2" : "1" });
+        const stageEnd = stageX0 + stageStep * 100;
+        stage.appendChild(el("line", { x1: stageX0, y1: stageY, x2: stageEnd, y2: stageY, stroke: "#f59e0b", "stroke-width": "3" }));
+        for (let i = 0; i <= 100; i += 1) {
+          const x = stageX0 + i * stageStep;
+          const major = i % 10 === 0;
+          const h = major ? 36 : 21;
+          stage.appendChild(el("line", {
+            x1: x,
+            y1: stageY - h / 2,
+            x2: x,
+            y2: stageY + h / 2,
+            stroke: "#f59e0b",
+            "stroke-width": major ? "1.8" : "1"
+          }));
+        }
+        dom.stageScaleLayer.appendChild(stage);
+      }
+
+      const ocular = el("g", { transform: `rotate(${angle} 280 280)` });
+      ocular.appendChild(el("line", { x1: ocularX0, y1: ocularY, x2: x1, y2: ocularY, stroke: "#2563eb", "stroke-width": "3" }));
+      for (let i = 0; i <= 100; i += 1) {
+        const x = ocularX0 + i * ocularStep;
+        const major = i % 10 === 0;
+        const h = major ? 38 : 22;
+        ocular.appendChild(el("line", {
+          x1: x,
+          y1: ocularY - h / 2,
+          x2: x,
+          y2: ocularY + h / 2,
+          stroke: "#2563eb",
+            "stroke-width": major ? "1.9" : "1"
+        }));
+        if (major) ocular.appendChild(labelText(String(i), x, ocularY - 28, "#1d4ed8", 12, 800));
+      }
+      dom.ocularScaleLayer.appendChild(ocular);
+
+      dom.specimenLayer.classList.toggle("hidden", !state.sampleMode);
+      if (state.sampleMode) {
+        dom.stageScaleLayer.innerHTML = "";
+      }
+      drawSpecimen(c, ocularX0, ocularY, ocularStep);
+      applyFocusView();
+    }
+
+    function renderObjectiveTurret() {
+      const baseAngles = { "4": 0, "10": 120, "40": -120 };
+      const nodes = { "4": dom.objective4, "10": dom.objective10, "40": dom.objective40 };
+      const activeBase = baseAngles[state.lens];
+      const rendered = Object.entries(nodes).map(([lens, node]) => {
+        const rel = ((baseAngles[lens] - activeBase + 540) % 360) - 180;
+        const rad = rel * Math.PI / 180;
+        const active = lens === state.lens;
+        const x = 166 + Math.sin(rad) * 42;
+        const y = 165 - (1 - Math.cos(rad)) * 4;
+        const rot = -rel * 0.18;
+        node.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(1)})`);
+        node.setAttribute("opacity", active ? "1" : "0.68");
+        return { node, depth: Math.cos(rad) };
+      });
+      rendered.sort((a, b) => a.depth - b.depth).forEach(({ node }) => dom.objectiveLayer.appendChild(node));
+    }
+
+    function switchSlideOffset(lens) {
+      if (lens === "10") return -330;
+      if (lens === "40") return -520;
+      return 70;
+    }
+
+    function setLens(lens) {
+      const wasClear = focusViewState().level === "clear";
+      state.lens = lens;
+      const c = calibrations[lens];
+      state.sampleMode = false;
+      dom.stageMicrometerToggle.checked = true;
+      state.stageMicrometer = true;
+      if (!state.broken) {
+        if (wasClear) {
+          state.fine = Math.max(0, c.fine - 8);
+          state.slideX = switchSlideOffset(lens);
+        } else {
+          state.fine = 0;
+          state.slideX = switchSlideOffset(lens);
+        }
+      }
+      update();
+    }
+
+    function stageRiseAmount() {
+      return state.coarse * STAGE_RISE_PER_COARSE;
+    }
+
+    function activeObjectiveBottom() {
+      return OBJECTIVE_BOTTOM_Y[state.lens] || OBJECTIVE_BOTTOM_Y["4"];
+    }
+
+    function lensSlideGap() {
+      return SLIDE_TOP_Y - stageRiseAmount() - activeObjectiveBottom();
+    }
+
+    function safetyState() {
+      if (state.broken) return { level: "broken", text: "玻片破裂", gap: 100 };
+      const high = state.lens === "40";
+      if (!(high && state.stageMicrometer)) return { level: "safe", text: "安全", gap: Math.min(72, state.coarse) };
+      const gap = lensSlideGap();
+      if (gap <= 0) return { level: "broken", text: "玻片破裂", gap };
+      if (gap <= 8) return { level: "danger", text: "即將撞擊", gap };
+      if (gap <= 18) return { level: "warn", text: "危險距離", gap };
+      return { level: "safe", text: "安全", gap };
+    }
+
+    function applySafety() {
+      const s = safetyState();
+      if (s.level === "broken") state.broken = true;
+      if (s.level === "broken") state.safetyPracticed = false;
+
+      const stageRise = stageRiseAmount();
+      const slideTop = SLIDE_TOP_Y - stageRise;
+      const lensBottom = activeObjectiveBottom();
+      dom.stageGroup.setAttribute("transform", `translate(0 ${-stageRise})`);
+
+      dom.dangerLine.setAttribute("y1", String(lensBottom));
+      dom.dangerLine.setAttribute("y2", String(slideTop));
+      const color = s.level === "safe" ? "#10b981" : s.level === "warn" ? "#facc15" : "#ef4444";
+      dom.dangerLine.setAttribute("stroke", color);
+      dom.coarseKnobSvg.setAttribute("transform", `rotate(${state.coarse * 3.6} 286 181)`);
+      dom.fineKnobSvg.setAttribute("transform", `rotate(${state.fine * 7.2} 298 224)`);
+
+      dom.safetyReadout.textContent = s.text;
+      dom.safetyReadout.style.color = color;
+      dom.crackOverlay.classList.toggle("show", state.broken);
+      dom.crackSvg.classList.toggle("hidden", !state.broken);
+    }
+
+    function setStatus() {
+      const c = calibrations[state.lens];
+      const aligned = Math.abs(state.angle) <= 1;
+      const focus = focusViewState();
+      const slideAligned = Math.abs(state.slideX) <= 2;
+      const s = safetyState();
+      dom.statusBox.className = "status";
+
+      if (state.broken) {
+        dom.statusBox.textContent = "玻片已破裂。請重置後回到低倍，完成校正後再切換高倍。";
+        dom.statusBox.classList.add("danger");
+        return;
+      }
+
+      if (s.level === "danger") {
+        dom.statusBox.textContent = "即將撞擊載物台測微器。高倍 400X 下請立刻停止粗調，改用細調節輪。若繼續操作，玻片將破裂！";
+        dom.statusBox.classList.add("danger");
+        return;
+      }
+
+      if (s.level === "warn") {
+        dom.statusBox.textContent = "紅色危險距離正在縮短。高倍物鏡工作距離很短，粗調節輪會讓物鏡快速接近玻片。";
+        dom.statusBox.classList.add("warn");
+        return;
+      }
+
+      if (!state.stageMicrometer && !state.sampleMode) {
+        dom.statusBox.textContent = "目前沒有放入載物台測微器。校正時需要橘色標準尺，測量標本時才取下。";
+        dom.statusBox.classList.add("warn");
+        return;
+      }
+
+      if (focus.level === "blank") {
+        const focusTarget = state.sampleMode ? "標本" : "橘色載物台測微器";
+        dom.statusBox.textContent = `藍色目鏡測微器會一直清楚可見；目前${focusTarget}尚未進入焦距範圍，請先轉動粗調節輪。`;
+        return;
+      }
+
+      if (focus.level === "blur") {
+        const focusTarget = state.sampleMode ? "標本" : "橘色載物台測微器";
+        dom.statusBox.textContent = `藍色目鏡測微器保持清楚；目前${focusTarget}仍模糊，請用細調節輪慢慢調清楚。`;
+        dom.statusBox.classList.add("warn");
+        return;
+      }
+
+      if (!aligned) {
+        dom.statusBox.textContent = `藍色目鏡測微器目前偏轉 ${Number(state.angle).toFixed(1)}°，先轉到 0°，再讀取 a 與 b 的對齊格數。`;
+        return;
+      }
+
+      if (!slideAligned && state.stageMicrometer) {
+        dom.statusBox.textContent = "請移動玻片位置，讓橘色載物台測微器第一格線對齊藍色目鏡測微器第一格線。";
+        return;
+      }
+
+      if (state.sampleMode) {
+        const specimen = currentSpecimen();
+        const divisions = specimen.length / c.x;
+        dom.statusBox.textContent = `${specimen.label}最長端約跨過 ${divisions.toFixed(1)} 格目鏡刻度；在 ${c.total}X 下，長度約 ${divisions.toFixed(1)} × ${c.x} = ${specimen.length} μm。可用玻片位置滑桿把標本移到刻度下方。`;
+        dom.statusBox.classList.add("good");
+        return;
+      }
+
+      dom.statusBox.innerHTML = `已平行對齊。讀取 <span class="ocular-mark">${c.a} 格目鏡測微器</span> 對上 <span class="stage-mark">${c.b} 格載物台測微器</span>，<span class="measure-mark">x = 10 × ${c.b} / ${c.a} = ${c.x} μm</span>。`;
+      dom.statusBox.classList.add("good");
+    }
+
+    function updateTasks() {
+      const aligned = Math.abs(state.angle) <= 1;
+      const allRecorded = state.recorded["4"] && state.recorded["10"] && state.recorded["40"];
+      const setDone = (wrap, dot, done) => {
+        wrap.classList.toggle("done", done);
+        dot.classList.toggle("done", done);
+        dot.textContent = done ? "✓" : "-";
+      };
+      setDone(dom.taskRotate, dom.dotRotate, aligned);
+      setDone(dom.taskRecord, dom.dotRecord, allRecorded);
+      setDone(dom.taskSafety, dom.dotSafety, state.safetyPracticed && state.recorded["40"] && !state.broken);
+      setDone(dom.taskSample, dom.dotSample, state.sampleMode && allRecorded);
+      ["4", "10", "40"].forEach(key => {
+        const done = dom[`done${key}`];
+        done.classList.toggle("done", state.recorded[key]);
+        done.textContent = state.recorded[key] ? "✓" : "-";
+      });
+      dom.taskSample.classList.toggle("hidden", !allRecorded && !state.sampleMode);
+    }
+
+    function update() {
+      const c = calibrations[state.lens];
+      dom.lens4.classList.toggle("active", state.lens === "4");
+      dom.lens10.classList.toggle("active", state.lens === "10");
+      dom.lens40.classList.toggle("active", state.lens === "40");
+      dom.row4.classList.toggle("active-row", state.lens === "4");
+      dom.row10.classList.toggle("active-row", state.lens === "10");
+      dom.row40.classList.toggle("active-row", state.lens === "40");
+
+      dom.objectiveBadge.textContent = `${c.objective}X`;
+      dom.totalBadge.textContent = `${c.total}X`;
+      dom.objectiveValue.textContent = `${c.objective}X`;
+      dom.angleValue.textContent = Number(state.angle).toFixed(1);
+      dom.angleSlider.value = state.angle;
+      dom.ocularInsetScale.setAttribute("transform", `rotate(${state.angle} 67 84)`);
+      dom.coarseValue.textContent = state.coarse;
+      dom.coarseSlider.value = state.coarse;
+      dom.fineValue.textContent = state.fine;
+      dom.fineSlider.value = state.fine;
+      dom.slideValue.textContent = state.slideX;
+      dom.slideSlider.value = state.slideX;
+      dom.stageMicrometerToggle.checked = state.stageMicrometer;
+      dom.specimenSelect.value = state.sampleSpecimen;
+
+      dom.aReadout.textContent = c.a;
+      dom.bReadout.textContent = c.b;
+      dom.xReadout.textContent = c.x;
+      dom.targetPairText.innerHTML = `<span class="ocular-mark">${c.a} 格 a</span> 對上 <span class="stage-mark">${c.b} 格 b</span>，<span class="measure-mark">x = ${c.x} μm</span>。`;
+      dom.formulaLine.innerHTML = `<span class="measure-mark">x</span> = 10 × <span class="stage-mark">${c.b}</span> / <span class="ocular-mark">${c.a}</span> = <span class="measure-mark">${c.x} μm</span>`;
+      dom.alignmentHint.textContent = Math.abs(state.angle) <= 1
+        ? (Math.abs(state.slideX) <= 2 ? "藍色與橘色刻度已平行，第一格線也已對齊。" : "請移動玻片位置，讓兩把尺的第一格線對齊。")
+        : "先把藍色目鏡測微器旋轉到與橘色載物台測微器平行。";
+
+      renderObjectiveTurret();
+      drawScale();
+      applySafety();
+      setStatus();
+      updateTasks();
+    }
+
+    function recordCurrent() {
+      if (state.broken) {
+        setStatus();
+        return;
+      }
+      if (!state.stageMicrometer) {
+        dom.statusBox.textContent = "校正時必須放入載物台測微器，才能把已知 10 μm 刻度拿來定標。";
+        dom.statusBox.className = "status warn";
+        return;
+      }
+      if (focusViewState().level !== "clear") {
+        dom.statusBox.textContent = "橘色載物台測微器尚未清晰對焦。藍色目鏡測微器雖然一直清楚，但必須先看清楚標準尺才能記錄。";
+        dom.statusBox.className = "status warn";
+        return;
+      }
+      if (Math.abs(state.angle) > 1) {
+        dom.statusBox.textContent = "目鏡測微器尚未轉正。先讓兩把尺平行，再記錄本倍率。";
+        dom.statusBox.className = "status warn";
+        return;
+      }
+      if (Math.abs(state.slideX) > 2) {
+        dom.statusBox.textContent = "載物台測微器第一格線尚未對齊。請移動玻片位置後再記錄。";
+        dom.statusBox.className = "status warn";
+        return;
+      }
+      state.recorded[state.lens] = true;
+      if (state.lens === "40") state.safetyPracticed = true;
+      update();
+    }
+
+    function resetAll() {
+      state.lens = "4";
+      state.angle = -7;
+      state.coarse = 0;
+      state.fine = 0;
+      state.slideX = 70;
+      state.stageMicrometer = true;
+      state.broken = false;
+      state.sampleMode = false;
+      state.sampleSpecimen = "paramecium";
+      state.safetyPracticed = false;
+      state.recorded = { "4": false, "10": false, "40": false };
+      update();
+    }
+
+    function sampleMode() {
+      const allRecorded = state.recorded["4"] && state.recorded["10"] && state.recorded["40"];
+      if (!allRecorded) {
+        dom.statusBox.textContent = "先完成三個倍率校正，再取下載物台測微器來測量未知標本。";
+        dom.statusBox.className = "status warn";
+        return;
+      }
+      state.sampleMode = true;
+      state.stageMicrometer = false;
+      state.broken = false;
+      const c = calibrations[state.lens];
+      const specimen = currentSpecimen();
+      const divisions = specimen.length / c.x;
+      dom.sampleResult.textContent = `${specimen.label}最長端約 ${specimen.length} μm；目前倍率下約跨 ${divisions.toFixed(1)} 格，可用玻片位置滑桿移動標本。`;
+      update();
+    }
+
+    dom.lens4.addEventListener("click", () => setLens("4"));
+    dom.lens10.addEventListener("click", () => setLens("10"));
+    dom.lens40.addEventListener("click", () => setLens("40"));
+    dom.angleSlider.addEventListener("input", event => { state.angle = Number(event.target.value); update(); });
+    dom.angleZeroBtn.addEventListener("click", () => { state.angle = 0; update(); });
+    dom.coarseSlider.addEventListener("input", event => {
+      state.coarse = Number(event.target.value);
+      const s = safetyState();
+      if (s.level === "broken") state.broken = true;
+      update();
+    });
+    dom.fineSlider.addEventListener("input", event => { state.fine = Number(event.target.value); update(); });
+    dom.slideSlider.addEventListener("input", event => { state.slideX = Number(event.target.value); update(); });
+    dom.slideAlignBtn.addEventListener("click", () => { state.slideX = 0; update(); });
+    dom.stageMicrometerToggle.addEventListener("change", event => {
+      state.stageMicrometer = event.target.checked;
+      if (state.stageMicrometer) state.sampleMode = false;
+      update();
+    });
+    dom.recordBtn.addEventListener("click", recordCurrent);
+    dom.resetBtn.addEventListener("click", resetAll);
+    dom.sampleBtn.addEventListener("click", sampleMode);
+    dom.specimenSelect.addEventListener("change", event => {
+      state.sampleSpecimen = event.target.value;
+      if (state.sampleMode) {
+        const c = calibrations[state.lens];
+        const specimen = currentSpecimen();
+        const divisions = specimen.length / c.x;
+        dom.sampleResult.textContent = `${specimen.label}最長端約 ${specimen.length} μm；目前倍率下約跨 ${divisions.toFixed(1)} 格，可用玻片位置滑桿移動標本。`;
+      }
+      update();
+    });
+
+    update();
+  </script>
+</body>
+</html>
