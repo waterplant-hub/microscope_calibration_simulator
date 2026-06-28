@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>顯微測量校正：目鏡測微器 × 載物台測微器 v1.0</title>
+  <title>顯微測量校正：目鏡測微器 × 載物台測微器 v1.1</title>
   <style>
     :root {
       color-scheme: dark;
@@ -1150,7 +1150,7 @@
         </div>
       </section>
     </main>
-    <footer class="footer-note">© 2026 林顯豪規劃設計｜顯微測量模擬器｜v1.0 課堂測試版</footer>
+    <footer class="footer-note">© 2026 林顯豪規劃設計｜顯微測量模擬器｜v1.1 課堂測試版</footer>
   </div>
 
   <script>
@@ -1436,18 +1436,29 @@
       if (state.stageMicrometer) {
         const stage = el("g", { opacity: state.sampleMode ? ".2" : "1" });
         const stageEnd = stageX0 + stageStep * 100;
-        stage.appendChild(el("line", { x1: stageX0, y1: stageY, x2: stageEnd, y2: stageY, stroke: "#f59e0b", "stroke-width": "3" }));
+        const stageCircleRadius = stageStep * 93.75;
+        stage.appendChild(el("circle", {
+          cx: stageX0 + stageStep * 50,
+          cy: stageY - 15,
+          r: stageCircleRadius,
+          fill: "none",
+          stroke: "#f59e0b",
+          "stroke-width": "1.05",
+          opacity: ".46"
+        }));
+        stage.appendChild(el("line", { x1: stageX0, y1: stageY, x2: stageEnd, y2: stageY, stroke: "#f59e0b", "stroke-width": "1.55" }));
         for (let i = 0; i <= 100; i += 1) {
           const x = stageX0 + i * stageStep;
           const major = i % 10 === 0;
-          const h = major ? 36 : 21;
+          const h = major ? 32 : 18;
           stage.appendChild(el("line", {
             x1: x,
             y1: stageY - h / 2,
             x2: x,
             y2: stageY + h / 2,
             stroke: "#f59e0b",
-            "stroke-width": major ? "1.8" : "1"
+            "stroke-width": major ? "1.05" : ".62",
+            opacity: major ? ".88" : ".74"
           }));
         }
         dom.stageScaleLayer.appendChild(stage);
