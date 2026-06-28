@@ -1274,10 +1274,10 @@
       const coarseError = Math.abs(state.coarse - c.focus);
       const fineError = Math.abs(state.fine - c.fine);
       if (coarseError > 14) return { level: "blank", opacity: 0, blur: 0 };
-      if (coarseError > 8) return { level: "blur", opacity: 0.22, blur: 12 };
-      if (coarseError > 4) return { level: "blur", opacity: 0.38, blur: 8 };
-      if (coarseError > 2 || fineError > 10) return { level: "blur", opacity: 0.55, blur: 5 };
-      if (fineError > 5) return { level: "blur", opacity: 0.74, blur: 2.6 };
+      if (coarseError > 8) return { level: "blur", opacity: 0.36, blur: 4.5 };
+      if (coarseError > 4) return { level: "blur", opacity: 0.55, blur: 2.8 };
+      if (coarseError > 2 || fineError > 8) return { level: "blur", opacity: 0.72, blur: 1.6 };
+      if (fineError > 3) return { level: "blur", opacity: 0.86, blur: 0.9 };
       return { level: "clear", opacity: 1, blur: 0 };
     }
 
@@ -1437,27 +1437,35 @@
         const stage = el("g", { opacity: state.sampleMode ? ".2" : "1" });
         const stageEnd = stageX0 + stageStep * 100;
         const stageCircleRadius = stageStep * 93.75;
+        const stageLineScale = { "4": 1, "10": 2, "40": 4 }[state.lens];
         stage.appendChild(el("circle", {
           cx: stageX0 + stageStep * 50,
           cy: stageY - 15,
           r: stageCircleRadius,
           fill: "none",
           stroke: "#f59e0b",
-          "stroke-width": "1.05",
+          "stroke-width": (0.85 * stageLineScale).toFixed(2),
           opacity: ".46"
         }));
-        stage.appendChild(el("line", { x1: stageX0, y1: stageY, x2: stageEnd, y2: stageY, stroke: "#f59e0b", "stroke-width": "1.55" }));
+        stage.appendChild(el("line", {
+          x1: stageX0,
+          y1: stageY,
+          x2: stageEnd,
+          y2: stageY,
+          stroke: "#f59e0b",
+          "stroke-width": (1.2 * stageLineScale).toFixed(2)
+        }));
         for (let i = 0; i <= 100; i += 1) {
           const x = stageX0 + i * stageStep;
           const major = i % 10 === 0;
-          const h = major ? 32 : 18;
+          const h = (major ? 28 : 16) * stageLineScale;
           stage.appendChild(el("line", {
             x1: x,
             y1: stageY - h / 2,
             x2: x,
             y2: stageY + h / 2,
             stroke: "#f59e0b",
-            "stroke-width": major ? "1.05" : ".62",
+            "stroke-width": (stageLineScale * (major ? 0.85 : 0.5)).toFixed(2),
             opacity: major ? ".88" : ".74"
           }));
         }
@@ -1619,7 +1627,7 @@
 
       if (focus.level === "blur") {
         const focusTarget = state.sampleMode ? "標本" : "橘色載物台測微器";
-        const blurLabel = focus.blur >= 8 ? "非常模糊" : focus.blur >= 5 ? "中等模糊" : "輕微模糊";
+        const blurLabel = focus.blur >= 4 ? "非常模糊" : focus.blur >= 2 ? "中等模糊" : "輕微模糊";
         dom.statusBox.textContent = `藍色目鏡測微器保持清楚；目前${focusTarget}${blurLabel}，請拖曳細調節輪慢慢調清楚。`;
         dom.statusBox.classList.add("warn");
         return;
