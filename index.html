@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>顯微測量校正：目鏡測微器 × 載物台測微器 v1.1</title>
+  <title>顯微測量校正：目鏡測微器 × 載物台測微器 v1.3</title>
   <style>
     :root {
       color-scheme: dark;
@@ -144,7 +144,14 @@
 
     .grid {
       display: grid;
-      grid-template-columns: minmax(280px, 360px) minmax(460px, 1fr) minmax(315px, 390px);
+      grid-template-columns: minmax(0, 1fr) minmax(310px, 370px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .scope-viewer-col {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
       gap: 16px;
       align-items: start;
     }
@@ -243,7 +250,7 @@
 
     .microscope-wrap {
       position: relative;
-      height: 360px;
+      min-height: 320px;
       border-bottom: 1px solid rgba(148, 163, 184, .18);
       background:
         linear-gradient(180deg, rgba(238, 247, 255, .08), transparent 38%),
@@ -413,15 +420,15 @@
     }
 
     .eyepiece-zone {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 210px;
+      display: flex;
+      flex-direction: column;
       gap: 14px;
       padding: 14px;
     }
 
     .eyepiece-frame {
       position: relative;
-      min-height: 560px;
+      min-height: 0;
       display: grid;
       place-items: center;
       border: 1px solid rgba(148, 163, 184, .2);
@@ -433,9 +440,9 @@
     }
 
     .eyepiece-svg {
-      width: min(100%, 660px);
+      width: min(100%, 520px);
       aspect-ratio: 1 / 1;
-      max-height: 540px;
+      max-height: 480px;
     }
 
     .crack-overlay {
@@ -469,6 +476,7 @@
 
     .legend {
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
     }
 
@@ -716,10 +724,10 @@
 
     .hidden { display: none !important; }
 
-    @media (max-width: 1180px) {
+    /* 平板與較窄桌面：顯微鏡和視野仍維持同一個操作工作區。 */
+    @media (max-width: 1100px) {
       .grid { grid-template-columns: 1fr; }
-      .eyepiece-zone { grid-template-columns: 1fr; }
-      .legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .scope-viewer-col { grid-template-columns: minmax(240px, 310px) minmax(0, 1fr); }
     }
 
     @media (max-width: 720px) {
@@ -732,8 +740,8 @@
         justify-content: stretch;
       }
       .badge { min-width: 0; padding: 6px 5px; }
+      .scope-viewer-col { grid-template-columns: 1fr; }
       .readout-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .eyepiece-frame { min-height: 390px; }
       .legend { grid-template-columns: 1fr; }
       .hint-banner { margin-top: 0; }
       .qref-panel { right: -52px; width: min(280px, calc(100vw - 36px)); }
@@ -759,6 +767,7 @@
     </div>
 
     <main class="grid">
+      <div class="scope-viewer-col">
       <section class="panel" aria-label="顯微鏡操作">
         <div class="panel-head">
           <h2 class="panel-title">顯微鏡操作</h2>
@@ -1072,6 +1081,7 @@
         </div>
         <div id="statusBox" class="status">藍色刻度目前有角度偏移，先旋轉到 0°，再讀取 a 與 b 的對齊格數。</div>
       </section>
+      </div>
 
       <section class="panel worksheet" aria-label="校正紀錄">
         <div class="panel-head">
@@ -1150,7 +1160,7 @@
         </div>
       </section>
     </main>
-    <footer class="footer-note">© 2026 林顯豪規劃設計｜顯微測量模擬器｜v1.1 課堂測試版</footer>
+    <footer class="footer-note">© 2026 林顯豪規劃設計｜顯微測量模擬器｜v1.3 課堂測試版</footer>
   </div>
 
   <script>
@@ -1172,7 +1182,7 @@
       lens: "4",
       angle: -7,
       coarse: 0,
-      fine: 0,
+      fine: 42,
       slideX: 70,
       stageMicrometer: true,
       broken: false,
@@ -1276,9 +1286,19 @@
       if (coarseError > 14) return { level: "blank", opacity: 0, blur: 0 };
       if (coarseError > 8) return { level: "blur", opacity: 0.36, blur: 4.5 };
       if (coarseError > 4) return { level: "blur", opacity: 0.55, blur: 2.8 };
-      if (coarseError > 2 || fineError > 8) return { level: "blur", opacity: 0.72, blur: 1.6 };
-      if (fineError > 3) return { level: "blur", opacity: 0.86, blur: 0.9 };
+      if (coarseError > 2) return { level: "blur", opacity: 0.7, blur: 1.8 };
+      if (fineError > 9) return { level: "blur", opacity: 0.7, blur: 1.8 };
+      if (fineError > 6) return { level: "blur", opacity: 0.82, blur: 1.05 };
+      if (fineError > 3) return { level: "blur", opacity: 0.93, blur: 0.45 };
       return { level: "clear", opacity: 1, blur: 0 };
+    }
+
+    function settleFineFocus() {
+      const c = calibrations[state.lens];
+      const coarseError = Math.abs(state.coarse - c.focus);
+      const fineError = Math.abs(state.fine - c.fine);
+      // 讓學生需要細調，但接近最佳焦點時不必靠手指精準卡住單一數值。
+      if (coarseError <= 2 && fineError <= 5) state.fine = c.fine;
     }
 
     function applyFocusView() {
@@ -1531,10 +1551,10 @@
       state.stageMicrometer = true;
       if (!state.broken) {
         if (wasClear) {
-          state.fine = Math.max(0, c.fine - 8);
+          state.fine = Math.max(0, c.fine - 10);
           state.slideX = switchSlideOffset(lens);
         } else {
-          state.fine = 0;
+          state.fine = Math.max(0, c.fine - 10);
           state.slideX = switchSlideOffset(lens);
         }
       }
@@ -1627,7 +1647,7 @@
 
       if (focus.level === "blur") {
         const focusTarget = state.sampleMode ? "標本" : "橘色載物台測微器";
-        const blurLabel = focus.blur >= 4 ? "非常模糊" : focus.blur >= 2 ? "中等模糊" : "輕微模糊";
+        const blurLabel = focus.blur >= 4 ? "非常模糊" : focus.blur >= 1.5 ? "明顯模糊" : focus.blur >= .8 ? "稍微模糊" : "幾乎清晰";
         dom.statusBox.textContent = `藍色目鏡測微器保持清楚；目前${focusTarget}${blurLabel}，請拖曳細調節輪慢慢調清楚。`;
         dom.statusBox.classList.add("warn");
         return;
@@ -1817,7 +1837,7 @@
       state.lens = "4";
       state.angle = -7;
       state.coarse = 0;
-      state.fine = 0;
+      state.fine = 42;
       state.slideX = 70;
       state.stageMicrometer = true;
       state.broken = false;
@@ -1878,6 +1898,7 @@
             if (s.level === "broken") state.broken = true;
           } else if (type === "fine") {
             state.fine = clampValue(Math.round(start.fine - dy * 0.8), 0, 100);
+            settleFineFocus();
           }
           update();
         };
@@ -1928,6 +1949,7 @@
             if (s.level === "broken") state.broken = true;
           } else {
             state.fine = next;
+            settleFineFocus();
           }
           update();
         };
@@ -1963,7 +1985,11 @@
       if (s.level === "broken") state.broken = true;
       update();
     });
-    dom.fineSlider.addEventListener("input", event => { state.fine = Number(event.target.value); update(); });
+    dom.fineSlider.addEventListener("input", event => {
+      state.fine = Number(event.target.value);
+      settleFineFocus();
+      update();
+    });
     dom.slideSlider.addEventListener("input", event => { state.slideX = Number(event.target.value); update(); });
     dom.slideAlignBtn.addEventListener("click", () => { state.slideX = 0; update(); });
     dom.stageMicrometerToggle.addEventListener("change", event => {
