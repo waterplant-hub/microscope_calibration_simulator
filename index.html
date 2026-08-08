@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9ETEGP9CTL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9ETEGP9CTL');
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>顯微測量校正：目鏡測微器 × 載物台測微器 v1.3</title>
+  <title>顯微測量校正：目鏡測微器 × 載物台測微器 v1.5</title>
   <style>
     :root {
       color-scheme: dark;
@@ -90,6 +99,45 @@
       color: rgba(203, 213, 225, .92);
       font-size: .84rem;
       line-height: 1.5;
+    }
+
+    .hint-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .hint-actions,
+    .header-tools,
+    .mode-tabs {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .header-side {
+      display: grid;
+      justify-items: end;
+      gap: 8px;
+    }
+
+    .mode-button {
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid rgba(148, 163, 184, .28);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, .72);
+      color: #cbd5e1;
+      font-size: .76rem;
+      font-weight: 820;
+      cursor: pointer;
+    }
+
+    .mode-button.active {
+      border-color: rgba(56, 189, 248, .6);
+      background: #0c4a6e;
+      color: #e0f2fe;
     }
 
     .hint-banner b { color: #e0f2fe; }
@@ -250,7 +298,7 @@
 
     .microscope-wrap {
       position: relative;
-      min-height: 320px;
+      height: clamp(320px, 34vw, 360px);
       border-bottom: 1px solid rgba(148, 163, 184, .18);
       background:
         linear-gradient(180deg, rgba(238, 247, 255, .08), transparent 38%),
@@ -293,6 +341,75 @@
 
     .direct-target:active {
       cursor: grabbing;
+    }
+
+    .direct-target.control-active .knob-glow-ring,
+    .direct-target.control-active > .knob-glow-ring {
+      stroke: rgba(56, 189, 248, .9);
+    }
+
+    #eyepieceCapControl.control-active > rect:first-child {
+      stroke: #38bdf8;
+      stroke-width: 2.4;
+    }
+
+    .precision-dock {
+      padding: 10px 12px;
+      border-color: rgba(56, 189, 248, .34);
+      background: rgba(8, 27, 44, .88);
+    }
+
+    .precision-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .precision-head span {
+      color: #94a3b8;
+      font-size: .7rem;
+      font-weight: 800;
+    }
+
+    .precision-head strong {
+      color: #e0f2fe;
+      font-size: .84rem;
+    }
+
+    .precision-dock input[type="range"] {
+      min-height: 28px;
+      margin: 0;
+      touch-action: pan-x;
+    }
+
+    .precision-help {
+      margin: 4px 0 0;
+      color: #7dd3fc;
+      font-size: .7rem;
+      line-height: 1.35;
+    }
+
+    .focus-chip {
+      min-width: 78px;
+      padding: 5px 7px;
+      border: 1px solid rgba(148, 163, 184, .26);
+      border-radius: 7px;
+      background: rgba(15, 23, 42, .72);
+      color: #cbd5e1;
+      font-size: .7rem;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .focus-chip.warn { color: #fde68a; border-color: rgba(245, 158, 11, .36); }
+    .focus-chip.good { color: #a7f3d0; border-color: rgba(16, 185, 129, .4); }
+
+    .hint-target {
+      filter: drop-shadow(0 0 7px rgba(250, 204, 21, .95));
+      outline: 2px solid rgba(250, 204, 21, .8);
+      outline-offset: 3px;
     }
 
     .objective-lens-unit.direct-target {
@@ -588,6 +705,104 @@
       gap: 14px;
     }
 
+    .answer-entry,
+    .sample-entry {
+      padding: 12px;
+      border: 1px solid rgba(56, 189, 248, .34);
+      border-radius: 8px;
+      background: rgba(8, 47, 73, .26);
+    }
+
+    .answer-entry h3,
+    .sample-entry h3 {
+      margin: 0 0 9px;
+      color: #bae6fd;
+      font-size: .9rem;
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .entry-field {
+      display: grid;
+      gap: 5px;
+      color: #cbd5e1;
+      font-size: .76rem;
+      font-weight: 760;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 38px;
+      padding: 6px 8px;
+      border: 1px solid rgba(148, 163, 184, .4);
+      border-radius: 7px;
+      background: #081321;
+      color: #f8fafc;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .entry-note {
+      margin: 8px 0 0;
+      color: #94a3b8;
+      font-size: .75rem;
+      line-height: 1.45;
+    }
+
+    .sample-entry .entry-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sample-entry .small-btn {
+      margin-top: 9px;
+    }
+
+    dialog {
+      width: min(420px, calc(100vw - 32px));
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, .38);
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+    }
+
+    dialog::backdrop { background: rgba(2, 6, 23, .7); }
+    dialog h2 { margin: 0 0 12px; font-size: 1.1rem; }
+    dialog p { margin: 8px 0; color: #cbd5e1; }
+    dialog .small-btn { margin-top: 10px; }
+
+    .report-summary {
+      padding: 10px;
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: 8px;
+      background: rgba(8, 19, 33, .76);
+      color: #cbd5e1;
+      font-size: .8rem;
+      line-height: 1.5;
+    }
+
+    .report-log {
+      max-height: 150px;
+      margin: 10px 0 0;
+      padding: 0;
+      overflow: auto;
+      list-style: none;
+      color: #94a3b8;
+      font-size: .74rem;
+    }
+
+    .report-log li {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, .12);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -730,9 +945,43 @@
       .scope-viewer-col { grid-template-columns: minmax(240px, 310px) minmax(0, 1fr); }
     }
 
-    @media (max-width: 720px) {
+    /* 平板直式：機體與視野仍在第一屏同步比較，工作表移到兩者下方。 */
+    @media (min-width: 720px) and (max-width: 1023px) and (orientation: portrait) {
+      .app {
+        width: 100%;
+        max-width: none;
+        padding: 12px;
+      }
+      header { gap: 12px; }
+      .subtitle { max-width: 44ch; }
+      .hint-banner { margin-top: 12px; }
+      .grid { gap: 12px; }
+      .scope-viewer-col {
+        grid-template-columns: minmax(250px, .82fr) minmax(390px, 1.18fr);
+        gap: 12px;
+      }
+      .panel-head { min-height: 54px; padding: 9px 10px; }
+      .panel-actions { gap: 5px; }
+      .qref-toggle,
+      .small-btn { padding-right: 8px; padding-left: 8px; }
+      .microscope-wrap { height: 326px; }
+      .panel-body { padding: 10px; }
+      .control-stack { gap: 8px; }
+      .control-group { padding: 9px; }
+      .eyepiece-zone { gap: 9px; padding: 10px; }
+      .eyepiece-svg { width: 100%; max-height: none; }
+      .legend { gap: 6px; }
+      .legend-item { padding: 6px 7px; }
+      .legend-item p { font-size: .7rem; line-height: 1.35; }
+      .readout-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .status { min-height: 58px; padding: 9px 10px; }
+    }
+
+    @media (max-width: 640px) {
       .app { padding: 12px; }
       header { grid-template-columns: 1fr; }
+      .header-side { justify-items: stretch; }
+      .header-tools { justify-content: space-between; flex-wrap: wrap; }
       .badge-row {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -741,6 +990,9 @@
       }
       .badge { min-width: 0; padding: 6px 5px; }
       .scope-viewer-col { grid-template-columns: 1fr; }
+      .hint-bar { align-items: flex-start; flex-direction: column; }
+      .entry-grid,
+      .sample-entry .entry-grid { grid-template-columns: 1fr; }
       .readout-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .legend { grid-template-columns: 1fr; }
       .hint-banner { margin-top: 0; }
@@ -754,16 +1006,29 @@
       <div>
         <h1>顯微測量校正</h1>
         <p class="subtitle">目鏡尺固定為 100 格；載物台測微器是已知標準尺，倍率改變時視野中看到的比例會改變。</p>
-        <p class="device-note">建議平板橫向或電腦操作</p>
+        <p class="device-note">建議平板或電腦操作</p>
       </div>
-      <div class="badge-row" aria-label="目前倍率資訊">
-        <div class="badge"><strong>目鏡</strong><span>10X</span></div>
-        <div class="badge"><strong>物鏡</strong><span id="objectiveBadge">4X</span></div>
-        <div class="badge"><strong>總倍率</strong><span id="totalBadge">40X</span></div>
+      <div class="header-side">
+        <div class="badge-row" aria-label="目前倍率資訊">
+          <div class="badge"><strong>目鏡</strong><span>10X</span></div>
+          <div class="badge"><strong>物鏡</strong><span id="objectiveBadge">4X</span></div>
+          <div class="badge"><strong>總倍率</strong><span id="totalBadge">40X</span></div>
+        </div>
+        <div class="header-tools">
+          <div class="mode-tabs" aria-label="練習模式">
+            <button class="mode-button active" id="guidedModeBtn" type="button">入門校正</button>
+            <button class="mode-button" id="practiceModeBtn" type="button">獨立校正</button>
+          </div>
+          <button class="mode-button" id="reportBtn" type="button">操作紀錄</button>
+        </div>
       </div>
     </header>
-    <div class="hint-banner" id="hintBanner" role="status" aria-live="polite">
-      <span id="hintText">下一步：確認載物台測微器已放在載物台上，在 4X 物鏡下開始校正。</span>
+    <div class="hint-banner hint-bar" id="hintBanner">
+      <span id="hintText" aria-live="polite">目前任務：在 4X 物鏡下完成第一組校正。</span>
+      <div class="hint-actions">
+        <button class="small-btn" id="hintBtn" type="button">取得提示</button>
+        <button class="small-btn" id="checkStateBtn" type="button">檢查狀態</button>
+      </div>
     </div>
 
     <main class="grid">
@@ -957,6 +1222,15 @@
           </svg>
         </div>
         <div class="panel-body control-stack">
+          <div class="control-group precision-dock" id="precisionDock">
+            <div class="precision-head">
+              <span>點選機體後精準調整</span>
+              <strong id="precisionControlName">粗調節輪</strong>
+            </div>
+            <input id="precisionSlider" type="range" min="0" max="100" step="1" value="0" aria-label="精準調整粗調節輪">
+            <p class="precision-help" id="precisionHelp">先用粗調讓橘色刻度進入焦距範圍。</p>
+          </div>
+
           <div class="control-group direct-hidden">
             <div class="control-label">物鏡倍率 <span class="value" id="objectiveValue">4X</span></div>
             <div class="segmented" role="group" aria-label="物鏡倍率">
@@ -1012,7 +1286,10 @@
       <section class="panel viewer" aria-label="目鏡視野">
         <div class="panel-head">
           <h2 class="panel-title">目鏡觀察視野</h2>
-          <button class="small-btn" id="recordBtn" type="button">記錄本倍率</button>
+          <div class="panel-actions">
+            <span class="focus-chip" id="focusChip">尚無影像</span>
+            <button class="small-btn" id="recordBtn" type="button">檢查並記錄</button>
+          </div>
         </div>
         <div class="eyepiece-zone">
           <div class="eyepiece-frame">
@@ -1064,7 +1341,7 @@
             </div>
             <div class="legend-item">
               <div class="legend-title">目前對齊組</div>
-              <p id="targetPairText"><span class="ocular-mark">a 40 格</span> 等長 <span class="stage-mark">b 100 格</span>，<span class="measure-mark">x = 25 μm</span>。</p>
+              <p id="targetPairText">完成對焦與對齊後，自行讀取 a、b 並計算 x。</p>
             </div>
             <div class="legend-item">
               <div class="legend-title">讀取條件</div>
@@ -1074,9 +1351,9 @@
         </div>
 
         <div class="readout-strip">
-          <div class="readout"><span>目鏡測微器 a 格</span><strong class="ocular-mark">a <span id="aReadout">40</span> 格</strong></div>
-          <div class="readout"><span>載物台測微器 b 格</span><strong class="stage-mark">b <span id="bReadout">100</span> 格</strong></div>
-          <div class="readout"><span>每格長度</span><strong class="measure-mark"><span id="xReadout">25</span> μm</strong></div>
+          <div class="readout"><span>目鏡測微器 a 格</span><strong class="ocular-mark">a <span id="aReadout">?</span> 格</strong></div>
+          <div class="readout"><span>載物台測微器 b 格</span><strong class="stage-mark">b <span id="bReadout">?</span> 格</strong></div>
+          <div class="readout"><span>每格長度</span><strong class="measure-mark"><span id="xReadout">?</span> μm</strong></div>
           <div class="readout"><span>安全狀態</span><strong id="safetyReadout">安全</strong></div>
         </div>
         <div id="statusBox" class="status">藍色刻度目前有角度偏移，先旋轉到 0°，再讀取 a 與 b 的對齊格數。</div>
@@ -1096,6 +1373,22 @@
           </div>
         </div>
         <div class="panel-body worksheet">
+          <div class="answer-entry">
+            <h3>填寫目前倍率的校正結果</h3>
+            <div class="entry-grid">
+              <label class="entry-field">目鏡測微器 a 格
+                <input class="answer-input" id="answerA" type="number" min="1" max="100" step="1" inputmode="numeric">
+              </label>
+              <label class="entry-field">載物台測微器 b 格
+                <input class="answer-input" id="answerB" type="number" min="1" max="100" step="1" inputmode="numeric">
+              </label>
+              <label class="entry-field">x（μm／a 格）
+                <input class="answer-input" id="answerX" type="number" min="0.1" max="100" step="0.1" inputmode="decimal">
+              </label>
+            </div>
+            <p class="entry-note">先從視野讀取等長的 a、b，再用 b × 10 μm = a × x 計算。</p>
+          </div>
+
           <table>
             <thead>
               <tr>
@@ -1109,23 +1402,23 @@
             <tbody>
               <tr id="row4">
                 <td>40X</td>
-                <td>40</td>
-                <td>100</td>
-                <td>25 μm</td>
+                <td id="cellA4">—</td>
+                <td id="cellB4">—</td>
+                <td id="cellX4">—</td>
                 <td><span id="done4" class="done-dot">-</span></td>
               </tr>
               <tr id="row10">
                 <td>100X</td>
-                <td>100</td>
-                <td>100</td>
-                <td>10 μm</td>
+                <td id="cellA10">—</td>
+                <td id="cellB10">—</td>
+                <td id="cellX10">—</td>
                 <td><span id="done10" class="done-dot">-</span></td>
               </tr>
               <tr id="row40">
                 <td>400X</td>
-                <td>100</td>
-                <td>25</td>
-                <td>2.5 μm</td>
+                <td id="cellA40">—</td>
+                <td id="cellB40">—</td>
+                <td id="cellX40">—</td>
                 <td><span id="done40" class="done-dot">-</span></td>
               </tr>
             </tbody>
@@ -1133,11 +1426,23 @@
 
           <div class="formula">
             <h3>講義公式</h3>
-            <div class="formula-line" id="formulaScaleLine"><span class="ocular-mark">40 × x</span> = <span class="stage-mark">100 × 10 μm</span></div>
-            <div class="formula-line" id="formulaLine"><span class="ocular-mark">x</span> = <span class="ocular-mark">25 μm</span></div>
+            <div class="formula-line" id="formulaScaleLine"><span class="ocular-mark">a × x</span> = <span class="stage-mark">b × 10 μm</span></div>
+            <div class="formula-line" id="formulaLine"><span class="ocular-mark">x</span> = <span class="ocular-mark">？ μm</span></div>
           </div>
 
           <div class="specimen-card" id="specimenCard"></div>
+          <div class="sample-entry hidden" id="sampleEntry">
+            <h3>填寫未知標本測量結果</h3>
+            <div class="entry-grid">
+              <label class="entry-field">最長端跨過 a 格數
+                <input class="answer-input" id="sampleDivisionsInput" type="number" min="0.1" max="100" step="0.1" inputmode="decimal">
+              </label>
+              <label class="entry-field">換算長度（μm）
+                <input class="answer-input" id="sampleLengthInput" type="number" min="0.1" max="300" step="0.1" inputmode="decimal">
+              </label>
+            </div>
+            <button class="small-btn" id="checkSampleBtn" type="button">檢查測量結果</button>
+          </div>
 
           <div class="task-list">
             <div class="task" id="taskRotate">
@@ -1160,10 +1465,24 @@
         </div>
       </section>
     </main>
-    <footer class="footer-note">© 2026 林顯豪規劃設計｜顯微測量模擬器｜v1.3 課堂測試版</footer>
+    <dialog id="reportDialog">
+      <h2>本次操作紀錄</h2>
+      <p>操作次數：<strong id="reportActions">0</strong></p>
+      <p>提交次數：<strong id="reportAttempts">0</strong></p>
+      <p>提示次數：<strong id="reportHints">0</strong></p>
+      <p>高倍粗調違規：<strong id="reportSafety">0</strong></p>
+      <div class="report-summary" id="reportSummary">尚未累積足夠操作資料。</div>
+      <ul class="report-log" id="reportLog"><li><time>0:00</time><span>尚無操作紀錄</span></li></ul>
+      <button class="small-btn" id="closeReportBtn" type="button">關閉</button>
+    </dialog>
+    <footer class="footer-note">© 2026 林顯豪規劃設計｜顯微測量模擬器｜v1.5 課堂測試版</footer>
   </div>
 
   <script>
+    const APP_META = {
+      title: "顯微測量校正",
+      version: "v1.5"
+    };
     const calibrations = {
       "4": { objective: 4, total: 40, a: 40, b: 100, x: 25, focus: 22, fine: 52, color: "#f87171" },
       "10": { objective: 10, total: 100, a: 100, b: 100, x: 10, focus: 22, fine: 60, color: "#facc15" },
@@ -1179,6 +1498,7 @@
     };
 
     const state = {
+      mode: "guided",
       lens: "4",
       angle: -7,
       coarse: 0,
@@ -1188,8 +1508,17 @@
       broken: false,
       sampleMode: false,
       sampleSpecimen: "paramecium",
+      sampleSolved: false,
       recorded: { "4": false, "10": false, "40": false },
-      safetyPracticed: false
+      answers: { "4": null, "10": null, "40": null },
+      safetyPracticed: false,
+      highCoarseUsed: false,
+      activeControl: "coarse",
+      hintLevel: 0,
+      completionTracked: false,
+      stats: { actions: 0, attempts: 0, hints: 0, safety: 0 },
+      eventLog: [],
+      startedAt: Date.now()
     };
 
     const dom = {
@@ -1222,6 +1551,10 @@
       coarseValue: document.getElementById("coarseValue"),
       fineSlider: document.getElementById("fineSlider"),
       fineValue: document.getElementById("fineValue"),
+      precisionDock: document.getElementById("precisionDock"),
+      precisionSlider: document.getElementById("precisionSlider"),
+      precisionControlName: document.getElementById("precisionControlName"),
+      precisionHelp: document.getElementById("precisionHelp"),
       slideSlider: document.getElementById("slideSlider"),
       slideValue: document.getElementById("slideValue"),
       slideAlignBtn: document.getElementById("slideAlignBtn"),
@@ -1239,6 +1572,7 @@
       formulaScaleLine: document.getElementById("formulaScaleLine"),
       formulaLine: document.getElementById("formulaLine"),
       statusBox: document.getElementById("statusBox"),
+      focusChip: document.getElementById("focusChip"),
       hintBanner: document.getElementById("hintBanner"),
       hintText: document.getElementById("hintText"),
       recordBtn: document.getElementById("recordBtn"),
@@ -1248,6 +1582,26 @@
       sampleBtn: document.getElementById("sampleBtn"),
       specimenSelect: document.getElementById("specimenSelect"),
       specimenCard: document.getElementById("specimenCard"),
+      sampleEntry: document.getElementById("sampleEntry"),
+      sampleDivisionsInput: document.getElementById("sampleDivisionsInput"),
+      sampleLengthInput: document.getElementById("sampleLengthInput"),
+      checkSampleBtn: document.getElementById("checkSampleBtn"),
+      answerA: document.getElementById("answerA"),
+      answerB: document.getElementById("answerB"),
+      answerX: document.getElementById("answerX"),
+      guidedModeBtn: document.getElementById("guidedModeBtn"),
+      practiceModeBtn: document.getElementById("practiceModeBtn"),
+      hintBtn: document.getElementById("hintBtn"),
+      checkStateBtn: document.getElementById("checkStateBtn"),
+      reportBtn: document.getElementById("reportBtn"),
+      reportDialog: document.getElementById("reportDialog"),
+      closeReportBtn: document.getElementById("closeReportBtn"),
+      reportActions: document.getElementById("reportActions"),
+      reportAttempts: document.getElementById("reportAttempts"),
+      reportHints: document.getElementById("reportHints"),
+      reportSafety: document.getElementById("reportSafety"),
+      reportSummary: document.getElementById("reportSummary"),
+      reportLog: document.getElementById("reportLog"),
       crackOverlay: document.getElementById("crackOverlay"),
       crackSvg: document.getElementById("crackSvg"),
       row4: document.getElementById("row4"),
@@ -1256,6 +1610,15 @@
       done4: document.getElementById("done4"),
       done10: document.getElementById("done10"),
       done40: document.getElementById("done40"),
+      cellA4: document.getElementById("cellA4"),
+      cellB4: document.getElementById("cellB4"),
+      cellX4: document.getElementById("cellX4"),
+      cellA10: document.getElementById("cellA10"),
+      cellB10: document.getElementById("cellB10"),
+      cellX10: document.getElementById("cellX10"),
+      cellA40: document.getElementById("cellA40"),
+      cellB40: document.getElementById("cellB40"),
+      cellX40: document.getElementById("cellX40"),
       taskRotate: document.getElementById("taskRotate"),
       taskRecord: document.getElementById("taskRecord"),
       taskSafety: document.getElementById("taskSafety"),
@@ -1279,18 +1642,103 @@
       return node;
     }
 
+    function ga4Track(eventName, params = {}) {
+      try {
+        if (typeof gtag === "function") gtag("event", eventName, params);
+      } catch (error) {
+        // Analytics must never interrupt the simulator.
+      }
+    }
+
+    function currentLayoutSnapshot() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const portrait = width < height;
+      const tabletPortrait = width >= 720 && width <= 1023 && portrait;
+      return {
+        layoutMode: width >= 1024 ? "wide_compare" : tabletPortrait ? "tablet_compare" : "stacked",
+        orientation: portrait ? "portrait" : "landscape",
+        viewportBucket: width < 720 ? "under_720" : width < 1024 ? "720_1023" : "1024_plus",
+        width,
+        height
+      };
+    }
+
+    function elapsedLabel() {
+      const seconds = Math.max(0, Math.round((Date.now() - state.startedAt) / 1000));
+      return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+    }
+
+    function logAction(label, count = true) {
+      if (count) state.stats.actions += 1;
+      state.eventLog.unshift({ time: elapsedLabel(), label });
+      state.eventLog = state.eventLog.slice(0, 8);
+    }
+
+    function controlDistance(type) {
+      const c = calibrations[state.lens];
+      if (type === "angle") return Math.abs(state.angle);
+      if (type === "coarse") return Math.abs(state.coarse - c.focus);
+      return Math.abs(state.fine - c.fine);
+    }
+
+    function selectPrecisionControl(type) {
+      if (!(["angle", "coarse", "fine"].includes(type))) return;
+      state.activeControl = type;
+      updatePrecisionControl();
+    }
+
+    function updatePrecisionControl() {
+      const meta = {
+        angle: {
+          name: "目鏡旋轉",
+          min: -180,
+          max: 180,
+          step: .5,
+          value: state.angle,
+          help: "旋轉藍色目鏡刻度，使它與橘色刻度平行。"
+        },
+        coarse: {
+          name: "粗調節輪",
+          min: 0,
+          max: 100,
+          step: 1,
+          value: state.coarse,
+          help: state.lens === "40" ? "400X 禁止粗調；請點選細調節輪。" : "快速升降載物台；看到橘色刻度後改用細調。"
+        },
+        fine: {
+          name: "細調節輪",
+          min: 0,
+          max: 100,
+          step: 1,
+          value: state.fine,
+          help: "小幅滑動，持續比較右側橘色刻度的清晰度。"
+        }
+      }[state.activeControl];
+      dom.precisionControlName.textContent = meta.name;
+      dom.precisionSlider.min = meta.min;
+      dom.precisionSlider.max = meta.max;
+      dom.precisionSlider.step = meta.step;
+      dom.precisionSlider.value = meta.value;
+      dom.precisionSlider.setAttribute("aria-label", `精準調整${meta.name}`);
+      dom.precisionHelp.textContent = meta.help;
+      dom.eyepieceCapControl.classList.toggle("control-active", state.activeControl === "angle");
+      dom.coarseKnobControl.classList.toggle("control-active", state.activeControl === "coarse");
+      dom.fineKnobControl.classList.toggle("control-active", state.activeControl === "fine");
+    }
+
     function focusViewState() {
       const c = calibrations[state.lens];
       const coarseError = Math.abs(state.coarse - c.focus);
       const fineError = Math.abs(state.fine - c.fine);
-      if (coarseError > 14) return { level: "blank", opacity: 0, blur: 0 };
-      if (coarseError > 8) return { level: "blur", opacity: 0.36, blur: 4.5 };
-      if (coarseError > 4) return { level: "blur", opacity: 0.55, blur: 2.8 };
-      if (coarseError > 2) return { level: "blur", opacity: 0.7, blur: 1.8 };
-      if (fineError > 9) return { level: "blur", opacity: 0.7, blur: 1.8 };
-      if (fineError > 6) return { level: "blur", opacity: 0.82, blur: 1.05 };
-      if (fineError > 3) return { level: "blur", opacity: 0.93, blur: 0.45 };
-      return { level: "clear", opacity: 1, blur: 0 };
+      if (coarseError > 14) return { level: "blank", stage: "blank", label: "尚無影像", opacity: 0, blur: 0 };
+      if (coarseError > 8) return { level: "blur", stage: "very-blur", label: "非常模糊", opacity: 0.36, blur: 4.5 };
+      if (coarseError > 4) return { level: "blur", stage: "medium-blur", label: "中度模糊", opacity: 0.55, blur: 2.8 };
+      if (coarseError > 2) return { level: "blur", stage: "near-focus", label: "接近焦點", opacity: 0.7, blur: 1.8 };
+      if (fineError > 9) return { level: "blur", stage: "fine-needed", label: "需要細調", opacity: 0.7, blur: 1.8 };
+      if (fineError > 6) return { level: "blur", stage: "fine-close", label: "逐漸清晰", opacity: 0.82, blur: 1.05 };
+      if (fineError > 3) return { level: "blur", stage: "almost-clear", label: "輕微模糊", opacity: 0.93, blur: 0.45 };
+      return { level: "clear", stage: "clear", label: "清晰", opacity: 1, blur: 0 };
     }
 
     function settleFineFocus() {
@@ -1542,13 +1990,41 @@
       return 70;
     }
 
+    function loadAnswerInputs() {
+      const answer = state.answers[state.lens];
+      dom.answerA.value = answer ? answer.a : "";
+      dom.answerB.value = answer ? answer.b : "";
+      dom.answerX.value = answer ? answer.x : "";
+    }
+
     function setLens(lens) {
+      if (state.mode === "guided") {
+        if (lens === "10" && !state.recorded["4"]) {
+          dom.statusBox.textContent = "先完成並記錄 40X 校正，再切換到 100X。";
+          dom.statusBox.className = "status warn";
+          return;
+        }
+        if (lens === "40" && !state.recorded["10"]) {
+          dom.statusBox.textContent = "先完成並記錄 100X 校正，再切換到 400X。";
+          dom.statusBox.className = "status warn";
+          return;
+        }
+      }
+
       const wasClear = focusViewState().level === "clear";
+      const previousLens = state.lens;
       state.lens = lens;
       const c = calibrations[lens];
+      state.activeControl = lens === "4" && !state.recorded["4"] ? "coarse" : "fine";
       state.sampleMode = false;
+      state.sampleSolved = false;
       dom.stageMicrometerToggle.checked = true;
       state.stageMicrometer = true;
+      state.hintLevel = 0;
+      if (lens === "40" && previousLens !== "40") {
+        state.highCoarseUsed = false;
+        state.safetyPracticed = false;
+      }
       if (!state.broken) {
         if (wasClear) {
           state.fine = Math.max(0, c.fine - 10);
@@ -1558,6 +2034,14 @@
           state.slideX = switchSlideOffset(lens);
         }
       }
+      loadAnswerInputs();
+      logAction(`切換到 ${c.objective}X 物鏡`);
+      ga4Track("objective_select", {
+        objective: `${c.objective}x`,
+        total_magnification: c.total,
+        mode: state.mode,
+        previous_objective: `${calibrations[previousLens].objective}x`
+      });
       update();
     }
 
@@ -1633,6 +2117,12 @@
         return;
       }
 
+      if (state.lens === "40" && state.highCoarseUsed) {
+        dom.statusBox.textContent = "400X 下已使用粗調節輪，本次高倍安全操作未通過。請切回 100X，再重新進入 400X，只用細調節輪。";
+        dom.statusBox.classList.add("danger");
+        return;
+      }
+
       if (!state.stageMicrometer && !state.sampleMode) {
         dom.statusBox.textContent = "目前沒有放入載物台測微器。校正時需要橘色標準尺，測量標本時才取下。";
         dom.statusBox.classList.add("warn");
@@ -1666,12 +2156,16 @@
       if (state.sampleMode) {
         const specimen = currentSpecimen();
         const divisions = specimen.length / c.x;
-        dom.statusBox.textContent = `${specimen.label}最長端約跨過 ${divisions.toFixed(1)} 格目鏡刻度；在 ${c.total}X 下，長度約 ${divisions.toFixed(1)} × ${c.x} = ${specimen.length} μm。可用玻片位置滑桿把標本移到刻度下方。`;
-        dom.statusBox.classList.add("good");
+        dom.statusBox.textContent = state.sampleSolved
+          ? `${specimen.label}測量正確：${divisions.toFixed(1)} 格 × ${c.x} μm = ${specimen.length} μm。`
+          : `請把${specimen.label}最長端移到目鏡刻度下方，讀取跨格數並自行換算長度。`;
+        dom.statusBox.classList.add(state.sampleSolved ? "good" : "warn");
         return;
       }
 
-      dom.statusBox.innerHTML = `已平行對齊。讀取 <span class="ocular-mark">目鏡測微器 a ${c.a} 格</span> 等長 <span class="stage-mark">載物台測微器 b ${c.b} 格</span>，<span class="measure-mark">x = ${c.x} μm</span>。`;
+      dom.statusBox.textContent = state.recorded[state.lens]
+        ? `${c.total}X 校正結果已正確記錄。`
+        : "已完成對焦、平行與第一格對齊。請從視野讀取 a、b，計算 x 後填入校正紀錄。";
       dom.statusBox.classList.add("good");
     }
 
@@ -1686,7 +2180,7 @@
       setDone(dom.taskRotate, dom.dotRotate, aligned);
       setDone(dom.taskRecord, dom.dotRecord, allRecorded);
       setDone(dom.taskSafety, dom.dotSafety, state.safetyPracticed && state.recorded["40"] && !state.broken);
-      setDone(dom.taskSample, dom.dotSample, state.sampleMode && allRecorded);
+      setDone(dom.taskSample, dom.dotSample, state.sampleSolved && allRecorded);
       ["4", "10", "40"].forEach(key => {
         const done = dom[`done${key}`];
         done.classList.toggle("done", state.recorded[key]);
@@ -1740,29 +2234,46 @@
         }
       } else if (state.sampleMode) {
         const specimen = currentSpecimen();
-        const divisions = specimen.length / c.x;
-        tone = "good";
-        message = `目前測量：${specimen.label} 最長端約跨 ${divisions.toFixed(1)} 格，換算長度約 ${specimen.length} μm。`;
+        tone = state.sampleSolved ? "good" : "";
+        message = state.sampleSolved
+          ? `測量完成：${specimen.label}的跨格數與換算長度均正確。`
+          : `目前任務：移動${specimen.label}，自行讀取最長端跨格數並換算長度。`;
       } else {
         tone = "good";
         message = "下一步：三倍率校正完成，選擇待測標本並按「量未知標本」。";
       }
 
-      dom.hintBanner.className = `hint-banner${tone ? ` ${tone}` : ""}`;
-      dom.hintText.innerHTML = message.replace("下一步：", "<b>下一步：</b>");
+      if (state.mode === "practice" && !state.broken && s.level === "safe") {
+        tone = state.sampleSolved ? "good" : "";
+        if (!allRecorded) {
+          message = `獨立校正：完成 ${c.total}X 的對焦、對齊與計算；需要時再按「取得提示」。`;
+        } else if (state.sampleMode && !state.sampleSolved) {
+          message = `獨立測量：觀察${currentSpecimen().label}跨過多少格，再計算實際長度。`;
+        }
+      }
+
+      dom.hintBanner.className = `hint-banner hint-bar${tone ? ` ${tone}` : ""}`;
+      dom.hintText.innerHTML = message.replace("下一步：", "<b>下一步：</b>").replace("目前任務：", "<b>目前任務：</b>");
 
       if (state.sampleMode) {
         const specimen = currentSpecimen();
         const divisions = specimen.length / c.x;
-        dom.specimenCard.innerHTML = `<strong>${specimen.label}</strong> 在 ${c.total}X 下：最長端約 <strong>${divisions.toFixed(1)} 格</strong>目鏡刻度，換算長度 = ${divisions.toFixed(1)} × ${c.x} = <strong>${specimen.length} μm</strong>。`;
+        dom.specimenCard.innerHTML = state.sampleSolved
+          ? `<strong>${specimen.label}</strong>：${divisions.toFixed(1)} 格 × ${c.x} μm = <strong>${specimen.length} μm</strong>。`
+          : `<strong>${specimen.label}</strong> 已放入視野。請調整玻片位置，讀取最長端跨格數後填寫答案。`;
         dom.specimenCard.classList.add("show");
+        dom.sampleEntry.classList.remove("hidden");
       } else {
         dom.specimenCard.classList.remove("show");
+        dom.sampleEntry.classList.add("hidden");
       }
     }
 
     function update() {
       const c = calibrations[state.lens];
+      const focus = focusViewState();
+      dom.focusChip.textContent = focus.label;
+      dom.focusChip.className = `focus-chip${focus.level === "clear" ? " good" : focus.level === "blur" ? " warn" : ""}`;
       dom.lens4.classList.toggle("active", state.lens === "4");
       dom.lens10.classList.toggle("active", state.lens === "10");
       dom.lens40.classList.toggle("active", state.lens === "40");
@@ -1785,17 +2296,32 @@
       dom.stageMicrometerToggle.checked = state.stageMicrometer;
       dom.specimenSelect.value = state.sampleSpecimen;
 
-      dom.aReadout.textContent = c.a;
-      dom.bReadout.textContent = c.b;
-      dom.xReadout.textContent = c.x;
-      dom.targetPairText.innerHTML = `<span class="ocular-mark">a ${c.a} 格</span> 等長 <span class="stage-mark">b ${c.b} 格</span>，<span class="measure-mark">x = ${c.x} μm</span>。`;
-      dom.formulaScaleLine.innerHTML = `<span class="ocular-mark">${c.a} × x</span> = <span class="stage-mark">${c.b} × 10 μm</span>`;
-      dom.formulaLine.innerHTML = `<span class="ocular-mark">x</span> = <span class="ocular-mark">${c.x} μm</span>`;
+      const currentAnswer = state.answers[state.lens];
+      dom.aReadout.textContent = currentAnswer ? currentAnswer.a : "?";
+      dom.bReadout.textContent = currentAnswer ? currentAnswer.b : "?";
+      dom.xReadout.textContent = currentAnswer ? currentAnswer.x : "?";
+      dom.targetPairText.innerHTML = currentAnswer
+        ? `<span class="ocular-mark">a ${currentAnswer.a} 格</span> 等長 <span class="stage-mark">b ${currentAnswer.b} 格</span>，<span class="measure-mark">x = ${currentAnswer.x} μm</span>。`
+        : "完成對焦與對齊後，自行讀取 a、b 並計算 x。";
+      dom.formulaScaleLine.innerHTML = currentAnswer
+        ? `<span class="ocular-mark">${currentAnswer.a} × x</span> = <span class="stage-mark">${currentAnswer.b} × 10 μm</span>`
+        : `<span class="ocular-mark">a × x</span> = <span class="stage-mark">b × 10 μm</span>`;
+      dom.formulaLine.innerHTML = `<span class="ocular-mark">x</span> = <span class="ocular-mark">${currentAnswer ? currentAnswer.x : "？"} μm</span>`;
+
+      ["4", "10", "40"].forEach(key => {
+        const answer = state.answers[key];
+        dom[`cellA${key}`].textContent = answer ? answer.a : "—";
+        dom[`cellB${key}`].textContent = answer ? answer.b : "—";
+        dom[`cellX${key}`].textContent = answer ? `${answer.x} μm` : "—";
+      });
+      dom.guidedModeBtn.classList.toggle("active", state.mode === "guided");
+      dom.practiceModeBtn.classList.toggle("active", state.mode === "practice");
       dom.alignmentHint.textContent = Math.abs(state.angle) <= 1
         ? (Math.abs(state.slideX) <= 2 ? "藍色與橘色刻度已平行，第一格線也已對齊。" : "請移動玻片位置，讓兩把尺的第一格線對齊。")
         : "先把藍色目鏡測微器旋轉到與橘色載物台測微器平行。";
 
       renderObjectiveTurret();
+      updatePrecisionControl();
       drawScale();
       applySafety();
       setStatus();
@@ -1803,48 +2329,138 @@
       updateLearningAid();
     }
 
+    function trackCalibrationCheck(outcome, reason) {
+      const c = calibrations[state.lens];
+      ga4Track("calibration_check", {
+        outcome,
+        reason,
+        objective: `${c.objective}x`,
+        total_magnification: c.total,
+        attempt_number: state.stats.attempts,
+        mode: state.mode
+      });
+    }
+
     function recordCurrent() {
+      state.stats.attempts += 1;
+      logAction(`檢查 ${calibrations[state.lens].total}X 校正`, false);
       if (state.broken) {
+        trackCalibrationCheck("blocked", "slide_broken");
         setStatus();
         return;
       }
       if (!state.stageMicrometer) {
         dom.statusBox.textContent = "校正時必須放入載物台測微器，才能把已知 10 μm 刻度拿來定標。";
         dom.statusBox.className = "status warn";
+        trackCalibrationCheck("incomplete", "stage_micrometer_missing");
         return;
       }
       if (focusViewState().level !== "clear") {
         dom.statusBox.textContent = "橘色載物台測微器尚未清晰對焦。藍色目鏡測微器雖然一直清楚，但必須先拖曳調節輪看清楚標準尺才能記錄。";
         dom.statusBox.className = "status warn";
+        trackCalibrationCheck("incomplete", "not_focused");
         return;
       }
       if (Math.abs(state.angle) > 1) {
         dom.statusBox.textContent = "目鏡測微器尚未轉正。先讓兩把尺平行，再記錄本倍率。";
         dom.statusBox.className = "status warn";
+        trackCalibrationCheck("incomplete", "scale_not_parallel");
         return;
       }
       if (Math.abs(state.slideX) > 2) {
         dom.statusBox.textContent = "載物台測微器第一格線尚未對齊。請移動玻片位置後再記錄。";
         dom.statusBox.className = "status warn";
+        trackCalibrationCheck("incomplete", "first_line_not_aligned");
         return;
       }
+      if (state.lens === "40" && state.highCoarseUsed) {
+        dom.statusBox.textContent = "本次 400X 曾使用粗調節輪，安全操作未通過。請切回 100X 後重新進入 400X。";
+        dom.statusBox.className = "status danger";
+        trackCalibrationCheck("incomplete", "high_power_coarse_used");
+        return;
+      }
+
+      const enteredA = Number(dom.answerA.value);
+      const enteredB = Number(dom.answerB.value);
+      const enteredX = Number(dom.answerX.value);
+      const c = calibrations[state.lens];
+      if (!Number.isFinite(enteredA) || !Number.isFinite(enteredB) || !Number.isFinite(enteredX)) {
+        dom.statusBox.textContent = "請先填入目鏡 a 格、載物台 b 格與換算後的 x。";
+        dom.statusBox.className = "status warn";
+        trackCalibrationCheck("incomplete", "answer_missing");
+        return;
+      }
+      if (enteredA !== c.a || enteredB !== c.b) {
+        dom.statusBox.textContent = "a 或 b 的讀值不正確。請回到視野重新確認兩把尺等長時各跨多少格。";
+        dom.statusBox.className = "status warn";
+        trackCalibrationCheck("incorrect", "scale_reading");
+        return;
+      }
+      if (Math.abs(enteredX - c.x) > 0.05) {
+        dom.statusBox.textContent = "a、b 讀值正確，但 x 換算不正確。請使用 b × 10 μm = a × x 重新計算。";
+        dom.statusBox.className = "status warn";
+        trackCalibrationCheck("incorrect", "calculation");
+        return;
+      }
+
+      state.answers[state.lens] = { a: c.a, b: c.b, x: c.x };
       state.recorded[state.lens] = true;
-      if (state.lens === "40") state.safetyPracticed = true;
+      if (state.lens === "40" && !state.highCoarseUsed) state.safetyPracticed = true;
+      state.hintLevel = 0;
+      logAction(`完成 ${c.total}X 校正`, false);
+      trackCalibrationCheck("complete", "correct");
+      ga4Track("calibration_complete", {
+        objective: `${c.objective}x`,
+        total_magnification: c.total,
+        attempts: state.stats.attempts,
+        hints_used: state.stats.hints,
+        safety_violations: state.stats.safety
+      });
+      if (state.recorded["4"] && state.recorded["10"] && state.recorded["40"] && !state.completionTracked) {
+        state.completionTracked = true;
+        ga4Track("calibration_series_complete", {
+          total_actions: state.stats.actions,
+          total_attempts: state.stats.attempts,
+          hints_used: state.stats.hints,
+          safety_violations: state.stats.safety
+        });
+      }
       update();
     }
 
     function resetAll() {
+      const mode = state.mode;
       state.lens = "4";
-      state.angle = -7;
+      state.angle = mode === "practice"
+        ? (Math.random() < .5 ? -1 : 1) * (6 + Math.round(Math.random() * 10))
+        : -7;
       state.coarse = 0;
       state.fine = 42;
-      state.slideX = 70;
+      state.slideX = mode === "practice" ? 45 + Math.round(Math.random() * 55) : 70;
       state.stageMicrometer = true;
       state.broken = false;
       state.sampleMode = false;
       state.sampleSpecimen = "paramecium";
+      state.sampleSolved = false;
       state.safetyPracticed = false;
+      state.highCoarseUsed = false;
+      state.activeControl = "coarse";
+      state.hintLevel = 0;
+      state.completionTracked = false;
       state.recorded = { "4": false, "10": false, "40": false };
+      state.answers = { "4": null, "10": null, "40": null };
+      state.stats = { actions: 0, attempts: 0, hints: 0, safety: 0 };
+      state.eventLog = [];
+      state.startedAt = Date.now();
+      dom.sampleDivisionsInput.value = "";
+      dom.sampleLengthInput.value = "";
+      loadAnswerInputs();
+      logAction(mode === "guided" ? "開始入門校正" : "開始獨立校正", false);
+      ga4Track("calibration_start", {
+        mode,
+        layout_mode: currentLayoutSnapshot().layoutMode,
+        orientation: currentLayoutSnapshot().orientation
+      });
       update();
     }
 
@@ -1858,11 +2474,213 @@
       state.sampleMode = true;
       state.stageMicrometer = false;
       state.broken = false;
+      state.sampleSolved = false;
+      dom.sampleDivisionsInput.value = "";
+      dom.sampleLengthInput.value = "";
+      dom.sampleResult.textContent = `請讀取${currentSpecimen().label}最長端跨格數並換算長度。`;
+      logAction(`開始測量${currentSpecimen().label}`);
+      ga4Track("specimen_measurement_start", {
+        specimen: state.sampleSpecimen,
+        objective: `${calibrations[state.lens].objective}x`,
+        total_magnification: calibrations[state.lens].total
+      });
+      update();
+    }
+
+    function checkSampleAnswer() {
+      if (!state.sampleMode) return;
+      state.stats.attempts += 1;
+      logAction("檢查未知標本測量", false);
       const c = calibrations[state.lens];
       const specimen = currentSpecimen();
-      const divisions = specimen.length / c.x;
-      dom.sampleResult.textContent = `${specimen.label}最長端約 ${specimen.length} μm；目前倍率下約跨 ${divisions.toFixed(1)} 格，可用玻片位置滑桿移動標本。`;
+      const expectedDivisions = specimen.length / c.x;
+      const enteredDivisions = Number(dom.sampleDivisionsInput.value);
+      const enteredLength = Number(dom.sampleLengthInput.value);
+      if (!Number.isFinite(enteredDivisions) || !Number.isFinite(enteredLength)) {
+        dom.statusBox.textContent = "請先填入標本跨格數與換算長度。";
+        dom.statusBox.className = "status warn";
+        ga4Track("specimen_measurement_check", { specimen: state.sampleSpecimen, outcome: "missing_answer" });
+        return;
+      }
+      if (Math.abs(enteredDivisions - expectedDivisions) > 0.15) {
+        dom.statusBox.textContent = "跨格數不正確。請把標本最長端對準藍色目鏡刻度後重新讀取。";
+        dom.statusBox.className = "status warn";
+        ga4Track("specimen_measurement_check", { specimen: state.sampleSpecimen, outcome: "incorrect_divisions" });
+        return;
+      }
+      if (Math.abs(enteredLength - specimen.length) > 0.5) {
+        dom.statusBox.textContent = `跨格數正確，請再用「跨格數 × ${c.x} μm」換算實際長度。`;
+        dom.statusBox.className = "status warn";
+        ga4Track("specimen_measurement_check", { specimen: state.sampleSpecimen, outcome: "incorrect_length" });
+        return;
+      }
+      state.sampleSolved = true;
+      logAction(`完成${specimen.label}測量`, false);
+      ga4Track("specimen_measurement_complete", {
+        specimen: state.sampleSpecimen,
+        objective: `${c.objective}x`,
+        total_magnification: c.total,
+        measured_length: specimen.length,
+        attempts: state.stats.attempts
+      });
       update();
+    }
+
+    function trackHighCoarseUse(previous, next) {
+      if (state.lens !== "40" || previous === next) return;
+      const firstViolation = !state.highCoarseUsed;
+      if (firstViolation) state.stats.safety += 1;
+      state.highCoarseUsed = true;
+      state.safetyPracticed = false;
+      if (firstViolation) {
+        logAction("400X 使用粗調節輪", false);
+        ga4Track("safety_violation", {
+          type: "high_power_coarse_adjustment",
+          coarse_position: next,
+          total_magnification: 400
+        });
+      }
+    }
+
+    function clearHintTargets() {
+      [dom.eyepieceCapControl, dom.coarseKnobControl, dom.fineKnobControl, dom.slideSlider]
+        .forEach(node => node.classList.remove("hint-target"));
+    }
+
+    function currentLearningProblem() {
+      const focus = focusViewState();
+      if (state.lens === "40" && state.highCoarseUsed) return "safety";
+      if (focus.level === "blank") return "coarse";
+      if (focus.level === "blur") return "fine";
+      if (Math.abs(state.angle) > 1) return "angle";
+      if (Math.abs(state.slideX) > 2 && state.stageMicrometer) return "slide";
+      if (!state.recorded[state.lens]) return "answer";
+      return "complete";
+    }
+
+    function requestHint() {
+      state.hintLevel = Math.min(3, state.hintLevel + 1);
+      state.stats.hints += 1;
+      clearHintTargets();
+      const problem = currentLearningProblem();
+      logAction(`使用第 ${state.hintLevel} 層提示`, false);
+      ga4Track("hint_used", {
+        mode: state.mode,
+        hint_level: state.hintLevel,
+        problem,
+        objective: `${calibrations[state.lens].objective}x`
+      });
+      const hints = {
+        coarse: [
+          "症狀提示：目前只有藍色目鏡刻度清楚，橘色標準尺尚未進入焦距範圍。",
+          "概念提示：低倍開始找像時，先使用能快速升降載物台的調節輪。",
+          "操作提示：已標出粗調節輪。"
+        ],
+        fine: [
+          "症狀提示：橘色刻度已出現，但線條仍不夠清楚。",
+          "概念提示：影像出現後應改用小幅度微調，尤其在中、高倍。",
+          "操作提示：已標出細調節輪。"
+        ],
+        angle: [
+          "症狀提示：藍、橘兩把尺尚未互相平行。",
+          "概念提示：目鏡測微器可以旋轉，但中心位置不會移動。",
+          "操作提示：已標出黑色目鏡。"
+        ],
+        slide: [
+          "症狀提示：兩把尺雖已平行，但第一格線尚未重合。",
+          "概念提示：此時要移動載物台上的玻片，而不是移動目鏡刻度。",
+          "操作提示：已標出玻片位置控制。"
+        ],
+        answer: [
+          "讀值提示：找出兩把尺等長時，各自跨過多少格。",
+          "計算提示：載物台測微器每格是 10 μm，使用 b × 10 μm = a × x。",
+          "作答提示：把讀到的 a、b 與算出的 x 填入右側校正紀錄。"
+        ],
+        safety: [
+          "安全提示：400X 下使用粗調會快速改變物鏡與玻片距離。",
+          "修正提示：切回 100X，再重新進入 400X，之後只用細調節輪。",
+          "操作提示：請點選黃色 10X 物鏡返回中倍。"
+        ],
+        complete: [
+          "本倍率已完成，可依序切換下一倍率。",
+          "完成三倍率後，可取下載物台測微器測量未知標本。",
+          "目前沒有需要修正的校正條件。"
+        ]
+      };
+      const messages = hints[problem];
+      dom.hintText.textContent = messages[Math.min(state.hintLevel - 1, messages.length - 1)];
+      dom.hintBanner.className = "hint-banner hint-bar warn";
+
+      if (state.hintLevel >= 3) {
+        const target = {
+          coarse: dom.coarseKnobControl,
+          fine: dom.fineKnobControl,
+          angle: dom.eyepieceCapControl,
+          slide: dom.slideSlider
+        }[problem];
+        if (target) target.classList.add("hint-target");
+      }
+    }
+
+    function checkCurrentState() {
+      clearHintTargets();
+      update();
+      setStatus();
+      const problem = currentLearningProblem();
+      logAction("檢查目前狀態", false);
+      ga4Track("state_check", {
+        mode: state.mode,
+        problem,
+        objective: `${calibrations[state.lens].objective}x`,
+        outcome: problem === "complete" ? "complete" : "incomplete"
+      });
+    }
+
+    function setLearningMode(mode) {
+      if (mode !== "guided" && mode !== "practice") return;
+      state.mode = mode;
+      ga4Track("mode_select", { mode });
+      resetAll();
+    }
+
+    function openReport() {
+      const allRecorded = state.recorded["4"] && state.recorded["10"] && state.recorded["40"];
+      let summary = "尚未累積足夠操作資料。";
+      if (state.stats.safety > 0) {
+        summary = "曾在 400X 使用粗調節輪；建議再練習中倍轉高倍後只用細調的操作順序。";
+      } else if (state.stats.hints >= 3) {
+        summary = "已利用多層提示完成操作；可切換到獨立校正，再練習從視野症狀自行判斷。";
+      } else if (allRecorded && state.stats.hints === 0) {
+        summary = "三倍率校正均未使用提示，已能獨立完成對焦、對齊與換算。";
+      } else if (state.stats.attempts >= 3 && !allRecorded) {
+        summary = "已多次提交校正結果；可從最近操作判斷難點在對焦、讀格或換算。";
+      } else if (state.stats.actions > 0) {
+        summary = "已開始比較機體控制與視野變化，可繼續完成目前倍率校正。";
+      }
+      dom.reportActions.textContent = state.stats.actions;
+      dom.reportAttempts.textContent = state.stats.attempts;
+      dom.reportHints.textContent = state.stats.hints;
+      dom.reportSafety.textContent = state.stats.safety;
+      dom.reportSummary.textContent = summary;
+      dom.reportLog.replaceChildren();
+      const items = state.eventLog.length ? state.eventLog : [{ time: "0:00", label: "尚無操作紀錄" }];
+      items.forEach(item => {
+        const li = document.createElement("li");
+        const time = document.createElement("time");
+        const label = document.createElement("span");
+        time.textContent = item.time;
+        label.textContent = item.label;
+        li.append(time, label);
+        dom.reportLog.appendChild(li);
+      });
+      ga4Track("report_open", {
+        actions: state.stats.actions,
+        attempts: state.stats.attempts,
+        hints: state.stats.hints,
+        safety_violations: state.stats.safety,
+        calibration_complete: allRecorded ? "yes" : "no"
+      });
+      dom.reportDialog.showModal();
     }
 
     function clampValue(value, min, max) {
@@ -1875,16 +2693,34 @@
       return Math.round(next * 2) / 2;
     }
 
+    function finishControlAdjustment(type, inputMethod, startValue, startDistance) {
+      const currentValue = type === "angle" ? state.angle : state[type];
+      if (currentValue === startValue) return;
+      const labels = { angle: "目鏡旋轉", coarse: "粗調節輪", fine: "細調節輪" };
+      const finalDistance = controlDistance(type);
+      logAction(`調整${labels[type]}`);
+      ga4Track("control_adjusted", {
+        control: type,
+        input_method: inputMethod,
+        improved: finalDistance < startDistance ? "yes" : "no",
+        distance_after: Math.round(finalDistance * 10) / 10,
+        objective: `${calibrations[state.lens].objective}x`,
+        mode: state.mode
+      });
+    }
+
     function setupDirectDrag(target, type) {
       target.addEventListener("pointerdown", event => {
         if (event.button !== undefined && event.button !== 0) return;
         event.preventDefault();
+        selectPrecisionControl(type);
         const start = {
           x: event.clientX,
           y: event.clientY,
           angle: state.angle,
           coarse: state.coarse,
-          fine: state.fine
+          fine: state.fine,
+          distance: controlDistance(type)
         };
 
         const onMove = moveEvent => {
@@ -1893,7 +2729,9 @@
           if (type === "angle") {
             state.angle = normalizeAngle(start.angle + dx * 0.75);
           } else if (type === "coarse") {
+            const previous = state.coarse;
             state.coarse = clampValue(Math.round(start.coarse - dy * 0.55), 0, 100);
+            trackHighCoarseUse(previous, state.coarse);
             const s = safetyState();
             if (s.level === "broken") state.broken = true;
           } else if (type === "fine") {
@@ -1904,6 +2742,7 @@
         };
 
         const onUp = () => {
+          finishControlAdjustment(type, "machine_drag", start[type], start.distance);
           window.removeEventListener("pointermove", onMove);
           window.removeEventListener("pointerup", onUp);
           window.removeEventListener("pointercancel", onUp);
@@ -1923,28 +2762,25 @@
     }
 
     function setupCircularKnob(target, type, centerX, centerY, options = {}) {
-      const svg = target.ownerSVGElement;
       const glow = options.glow;
       target.addEventListener("pointerdown", event => {
         if (event.button !== undefined && event.button !== 0) return;
         event.preventDefault();
+        selectPrecisionControl(type);
         target.setPointerCapture?.(event.pointerId);
         if (glow) glow.style.stroke = "rgba(56, 189, 248, .62)";
 
-        const startPoint = svgPoint(svg, event.clientX, event.clientY);
-        const startAngle = Math.atan2(startPoint.y - centerY, startPoint.x - centerX) * 180 / Math.PI;
         const startValue = type === "coarse" ? state.coarse : state.fine;
-        const divisor = type === "coarse" ? 3.6 : 7.2;
+        const startY = event.clientY;
+        const startDistance = controlDistance(type);
+        const sensitivity = type === "coarse" ? .34 : .46;
 
         const onMove = moveEvent => {
-          const point = svgPoint(svg, moveEvent.clientX, moveEvent.clientY);
-          const angle = Math.atan2(point.y - centerY, point.x - centerX) * 180 / Math.PI;
-          let delta = angle - startAngle;
-          if (delta > 180) delta -= 360;
-          if (delta < -180) delta += 360;
-          const next = clampValue(Math.round(startValue + delta / divisor), 0, 100);
+          const next = clampValue(Math.round(startValue + (startY - moveEvent.clientY) * sensitivity), 0, 100);
           if (type === "coarse") {
+            const previous = state.coarse;
             state.coarse = next;
+            trackHighCoarseUse(previous, state.coarse);
             const s = safetyState();
             if (s.level === "broken") state.broken = true;
           } else {
@@ -1955,6 +2791,7 @@
         };
 
         const onUp = upEvent => {
+          finishControlAdjustment(type, "machine_drag", startValue, startDistance);
           if (glow) glow.style.stroke = "transparent";
           target.releasePointerCapture?.(upEvent.pointerId);
           window.removeEventListener("pointermove", onMove);
@@ -1977,10 +2814,46 @@
     setupDirectDrag(dom.eyepieceCapControl, "angle");
     setupCircularKnob(dom.coarseHitzone, "coarse", 330, 181, { glow: dom.coarseGlowRing });
     setupCircularKnob(dom.fineHitzone, "fine", 345, 238, { glow: dom.fineGlowRing });
+    let precisionStart = null;
+    const rememberPrecisionStart = () => {
+      const type = state.activeControl;
+      precisionStart = {
+        type,
+        value: type === "angle" ? state.angle : state[type],
+        distance: controlDistance(type)
+      };
+    };
+    dom.precisionSlider.addEventListener("pointerdown", rememberPrecisionStart);
+    dom.precisionSlider.addEventListener("focus", () => {
+      if (!precisionStart) rememberPrecisionStart();
+    });
+    dom.precisionSlider.addEventListener("input", event => {
+      const value = Number(event.target.value);
+      if (state.activeControl === "angle") {
+        state.angle = normalizeAngle(value);
+      } else if (state.activeControl === "coarse") {
+        const previous = state.coarse;
+        state.coarse = value;
+        trackHighCoarseUse(previous, state.coarse);
+        if (safetyState().level === "broken") state.broken = true;
+      } else {
+        state.fine = value;
+        settleFineFocus();
+      }
+      update();
+    });
+    dom.precisionSlider.addEventListener("change", () => {
+      if (precisionStart) {
+        finishControlAdjustment(precisionStart.type, "precision_bar", precisionStart.value, precisionStart.distance);
+      }
+      precisionStart = null;
+    });
     dom.angleSlider.addEventListener("input", event => { state.angle = Number(event.target.value); update(); });
     dom.angleZeroBtn.addEventListener("click", () => { state.angle = 0; update(); });
     dom.coarseSlider.addEventListener("input", event => {
+      const previous = state.coarse;
       state.coarse = Number(event.target.value);
+      trackHighCoarseUse(previous, state.coarse);
       const s = safetyState();
       if (s.level === "broken") state.broken = true;
       update();
@@ -1990,8 +2863,32 @@
       settleFineFocus();
       update();
     });
+    let slideStart = state.slideX;
+    dom.slideSlider.addEventListener("pointerdown", () => { slideStart = state.slideX; });
     dom.slideSlider.addEventListener("input", event => { state.slideX = Number(event.target.value); update(); });
-    dom.slideAlignBtn.addEventListener("click", () => { state.slideX = 0; update(); });
+    dom.slideSlider.addEventListener("change", () => {
+      if (state.slideX !== slideStart) {
+        logAction("移動玻片位置");
+        ga4Track("stage_slide_adjusted", {
+          input_method: "bar",
+          improved: Math.abs(state.slideX) < Math.abs(slideStart) ? "yes" : "no",
+          distance_after: Math.abs(state.slideX),
+          objective: `${calibrations[state.lens].objective}x`
+        });
+      }
+    });
+    dom.slideAlignBtn.addEventListener("click", () => {
+      const before = state.slideX;
+      state.slideX = 0;
+      logAction("將第一格線對齊");
+      ga4Track("stage_slide_adjusted", {
+        input_method: "align_button",
+        improved: Math.abs(before) > 0 ? "yes" : "no",
+        distance_after: 0,
+        objective: `${calibrations[state.lens].objective}x`
+      });
+      update();
+    });
     dom.stageMicrometerToggle.addEventListener("change", event => {
       state.stageMicrometer = event.target.checked;
       if (state.stageMicrometer) state.sampleMode = false;
@@ -1999,9 +2896,16 @@
     });
     dom.recordBtn.addEventListener("click", recordCurrent);
     dom.resetBtn.addEventListener("click", resetAll);
+    dom.guidedModeBtn.addEventListener("click", () => setLearningMode("guided"));
+    dom.practiceModeBtn.addEventListener("click", () => setLearningMode("practice"));
+    dom.hintBtn.addEventListener("click", requestHint);
+    dom.checkStateBtn.addEventListener("click", checkCurrentState);
+    dom.reportBtn.addEventListener("click", openReport);
+    dom.closeReportBtn.addEventListener("click", () => dom.reportDialog.close());
     dom.qrefBtn.addEventListener("click", () => {
       const open = dom.qrefPanel.classList.toggle("show");
       dom.qrefBtn.setAttribute("aria-expanded", String(open));
+      if (open) ga4Track("quick_reference_open", { mode: state.mode });
     });
     document.addEventListener("click", event => {
       if (!dom.qrefPanel.classList.contains("show")) return;
@@ -2012,17 +2916,29 @@
       }
     });
     dom.sampleBtn.addEventListener("click", sampleMode);
+    dom.checkSampleBtn.addEventListener("click", checkSampleAnswer);
     dom.specimenSelect.addEventListener("change", event => {
       state.sampleSpecimen = event.target.value;
       if (state.sampleMode) {
-        const c = calibrations[state.lens];
-        const specimen = currentSpecimen();
-        const divisions = specimen.length / c.x;
-        dom.sampleResult.textContent = `${specimen.label}最長端約 ${specimen.length} μm；目前倍率下約跨 ${divisions.toFixed(1)} 格，可用玻片位置滑桿移動標本。`;
+        state.sampleSolved = false;
+        dom.sampleDivisionsInput.value = "";
+        dom.sampleLengthInput.value = "";
+        dom.sampleResult.textContent = `請讀取${currentSpecimen().label}最長端跨格數並換算長度。`;
       }
+      logAction(`選擇${currentSpecimen().label}`);
+      ga4Track("specimen_select", {
+        specimen: state.sampleSpecimen,
+        sample_mode: state.sampleMode ? "yes" : "no"
+      });
       update();
     });
 
+    logAction("開始入門校正", false);
+    ga4Track("simulator_ready", {
+      app_version: APP_META.version,
+      layout_mode: currentLayoutSnapshot().layoutMode,
+      orientation: currentLayoutSnapshot().orientation
+    });
     update();
   </script>
 </body>
