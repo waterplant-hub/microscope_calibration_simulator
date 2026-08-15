@@ -4,6 +4,11 @@
 
 目前版本：**v1.5 課堂測試版**
 
+## 線上使用
+
+- 線上網站：[https://waterplant-hub.github.io/microscope_calibration_simulator/](https://waterplant-hub.github.io/microscope_calibration_simulator/)
+- GitHub 儲存庫：[https://github.com/waterplant-hub/microscope_calibration_simulator](https://github.com/waterplant-hub/microscope_calibration_simulator)
+
 ## 專案目的
 
 學生在學習顯微測量時，常見困難包括：
@@ -71,15 +76,7 @@
 - 若物鏡接近玻片，會出現危險距離提示。
 - 若繼續操作，玻片會破裂。
 
-## 使用方式
-
-### 線上使用
-
-開啟 GitHub Pages：
-
-[顯微測量校正模擬器](https://waterplant-hub.github.io/microscope_calibration_simulator/)
-
-### 本機使用
+## 本機使用
 
 下載專案後，直接用瀏覽器開啟根目錄的：
 
@@ -93,6 +90,27 @@ index.html
 - 平板橫向或直向
 
 手機直向畫面較窄，仍可瀏覽，但不建議作為主要課堂操作方式。
+
+## 資料與使用分析
+
+本模擬器不要求登入，也沒有姓名、班級或成績欄位。網站使用 Google Analytics 4 統計整體瀏覽與操作事件，例如版面類型、控制操作、提示使用、校正結果與高倍安全操作，作為課堂測試與介面改良參考；不主動傳送學生姓名或可直接識別學生身分的資料。
+
+## 專案結構
+
+- `index.html`：正式網站與模擬器的唯一入口，HTML、CSS、JavaScript 均收在同一檔案。
+- `README.md`：專案用途、版本與發布紀錄。
+
+發布版本以根目錄的 `index.html` 為準。
+
+## 維護與發布
+
+每次發布新版本時：
+
+1. 先在 `index.html` 完成修改，並同步更新 `<title>`、畫面版號、頁尾版號與本 README。
+2. 至少測試電腦、平板橫向與平板直向，確認「顯微鏡操作／目鏡視野」維持左右並列且沒有遮擋。
+3. 完整走過 40X、100X、400X 三倍率校正，確認 `a`、`b`、`x`、對焦、對齊與高倍安全判定。
+4. 抽查三種未知標本與操作紀錄，確認瀏覽器主控台沒有新的錯誤。
+5. 提交至 `main` 分支，等待 GitHub Pages 更新後，再以正式網址核對標題、版號與主要操作。
 
 ## 版本資訊
 
